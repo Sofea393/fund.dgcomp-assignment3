@@ -1746,12 +1746,23 @@ function deleteAbsence(id) {
   renderAbsence();
 }
 
+/* CLOCK */
 
+function startClock() {
+  function tick() {
+    const now = new Date();
 
+    document.getElementById("clockText").textContent = now.toLocaleString("en-US", {
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  tick();
+  setInterval(tick, 30000);
+}
 
 </script>
-
-    
-
 </body>
 </html>
