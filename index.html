@@ -1169,6 +1169,9 @@ document.getElementById("addBuilderRowBtn").addEventListener("click", () => {
   }
 
   timetableDraft.push(row);
+  state.timetable = timetableDraft;
+  rebuildAttendanceFromTimetable();
+  saveProgress();
   renderReviewTable();
   clearBuilderForm();
   showStatus("Class added to review table.", "success");
@@ -1186,6 +1189,9 @@ function clearBuilderForm() {
 
 document.getElementById("useSampleBtn").addEventListener("click", () => {
   timetableDraft = getSampleTimetable();
+  state.timetable = timetableDraft;
+  rebuildAttendanceFromTimetable();
+  saveProgress();
   renderReviewTable();
   showStatus("Sample timetable loaded.", "success");
 });
