@@ -476,6 +476,27 @@ brand {
   background: var(--green);
 }
 
+@media (max-width: 850px) {
+  #app.active {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    position: relative;
+  }
+
+  .form-grid,
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .view {
+    padding: 20px 16px 50px;
+  }
+}
 
   </style>
 
