@@ -786,6 +786,19 @@ function createBlankClass() {
     location: "",
     lecturer: ""
   };
+}
+function normalizeDay(value) {
+  const text = String(value || "").toLowerCase();
+
+  if (text.startsWith("mon")) return "Monday";
+  if (text.startsWith("tue")) return "Tuesday";
+  if (text.startsWith("wed")) return "Wednesday";
+  if (text.startsWith("thu")) return "Thursday";
+  if (text.startsWith("fri")) return "Friday";
+  if (text.startsWith("sat")) return "Saturday";
+  if (text.startsWith("sun")) return "Sunday";
+
+  return "";
 }  
 
 </script>
