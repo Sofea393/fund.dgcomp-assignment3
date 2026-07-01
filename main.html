@@ -1439,6 +1439,152 @@ function rebuildAttendanceFromTimetable() {
   state.attendance = newAttendance;
 }
 
+/* TASKS PAGE */
+
+function renderTasks() {
+  const root = document.getElementById("viewRoot");
+
+  root.innerHTML = `
+    <div class="view-head">
+      <div class="view-eyebrow">Deadlines & Tasks</div>
+      <h1 class="view-title">Manual Task Tracker</h1>
+      <p class="muted">Add assignments, exams, lab reports, and reminders manually.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <h3 style="margin-bottom:14px;">Add New Task</h3>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Course</label>
+          <select id="taskCourse">
+            ${getCourseOptions()}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Task Type</label>
+          <select id="taskType">
+            <option>Assignment</option>
+            <option>Lab Report</option>
+            <option>Quiz</option>
+            <option>Midterm</option>
+            <option>Final Exam</option>
+            <option>Reminder</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Task Name</label>
+          <input type="text" id="taskName" placeholder="e.g. Digital Computing Report">
+        </div>
+
+        <div class="field">
+          <label>Due Date</label>
+          <input type="date" id="taskDue">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+    </div>
+
+    <div id="taskList">
+      ${renderTaskList()}
+    </div>
+  `;
+}
+
+function getCourseOptions() {
+  const courses = [...new Set(state.timetable.map(item => item.code).filter(Boolean))];
+
+  if (courses.length === 0) {
+    return `<option value="">No courses available</option>`;
+  }
+
+  return courses.map(code => `<option>${escapeHtml(code)}</option>`).join("");
+}
+
+function addTask() {
+  const course = document.getElementById("taskCourse").value;
+  const type = document.getElementById("taskType").value;
+  const name = document.getElementById("taskName").value.trim();
+  const due = document.getElementById("taskDue").value;
+
+  if (!course || !name || !due) {
+    alert("Please fill in course, task name, and due date.");
+    return;
+  }
+
+  state.tasks.push({
+    id: uid(),
+    course,
+    type,
+    name,
+    due,
+    done: false
+  });
+
+  renderTasks();
+}
+
+function renderTaskList() {
+  if (state.tasks.length === 0) {
+    return `<div class="card"><p class="muted">No tasks added yet.</p></div>`;
+  }
+
+  const sortedTasks = [...state.tasks].sort((a, b) => new Date(a.due) - new Date(b.due));
+
+  return sortedTasks.map(task => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const dueDate = new Date(task.due);
+    dueDate.setHours(0, 0, 0, 0);
+
+    const daysLeft = Math.ceil((dueDate - today) / 86400000);
+
+    return `
+      <div class="list-item ${task.done ? "task-done" : ""}">
+        <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask('${task.id}')">
+
+        <div class="list-main">
+          <div class="list-title">
+            ${escapeHtml(task.name)}
+            <span class="badge">${task.type}</span>
+          </div>
+          <div class="list-sub">
+            ${escapeHtml(task.course)} · Due: ${task.due}
+            ${
+              daysLeft >= 0 && daysLeft <= 14
+              ? ` · ${daysLeft} days left`
+              : daysLeft < 0
+              ? ` · overdue`
+              : ""
+            }
+          </div>
+        </div>
+
+        <button class="btn btn-danger" onclick="deleteTask('${task.id}')">Delete</button>
+      </div>
+    `;
+  }).join("");
+}
+
+function toggleTask(id) {
+  const task = state.tasks.find(item => item.id === id);
+
+  if (task) {
+    task.done = !task.done;
+  }
+
+  renderTasks();
+}
+
+function deleteTask(id) {
+  state.tasks = state.tasks.filter(item => item.id !== id);
+  renderTasks();
+}
+
 
 
 </script>
