@@ -1,4 +1,3 @@
-<!--This is our main code for our interactive program for part 2 of the fund. digi comp assignment-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -308,7 +307,7 @@ table select {
   padding: 18px 14px;
 }
 
-brand {
+.brand {
   padding: 8px 8px 18px;
   border-bottom: 1px solid rgba(255,255,255,0.12);
   margin-bottom: 14px;
@@ -672,7 +671,7 @@ with lecture, tutorial, and lab slots.</div>
 <div id="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-title">EngiSpace</div>
+      <div class="brand-title">Campusly</div>
       <div class="brand-sub">Student Workspace</div>
     </div>
 
@@ -973,6 +972,7 @@ function parseCsv(text) {
 
   return dedupeRows(output);
 }
+
 function splitCsvRows(text) {
   const rows = [];
   let current = "";
@@ -1056,6 +1056,20 @@ function dedupeRows(rows) {
     seen.add(key);
     return true;
   });
+}
+
+function normalizeDraftRow(row) {
+  return {
+    id: row.id || uid(),
+    code: String(row.code || "").trim().toUpperCase(),
+    subject: String(row.subject || "").trim(),
+    type: row.type || "Lecture",
+    day: normalizeDay(row.day) || "Monday",
+    start: normalizeImportedTime(row.start) || row.start || "",
+    end: normalizeImportedTime(row.end) || row.end || "",
+    location: String(row.location || "").trim() || "TBA",
+    lecturer: String(row.lecturer || "").trim() || "TBA"
+  };
 }
 
 /* TIMETABLE SETUP ACTIONS */
@@ -1146,6 +1160,7 @@ function getSampleTimetable() {
     }
   ];
 }
+
 /* REVIEW TABLE */
 
 function renderReviewTable() {
