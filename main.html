@@ -918,6 +918,61 @@ function parseTimetableText(text) {
 
   return dedupeRows(rows);
 }
+function parseCsv(text) {
+  const rows = splitCsvRows(String(text || ""));
+  if (rows.length === 0) return [];
+
+  const firstRow = rows[0].map(cell => cell.trim().toLowerCase());
+  const hasHeader = firstRow.some(cell => cell.includes("course") || cell.includes("subject") || cell.includes("day"));
+
+  let headers = [];
+  let dataRows = rows;
+
+  if (hasHeader) {
+    headers = firstRow;
+    dataRows = rows.slice(1);
+  }
+
+  const output = [];
+
+  dataRows.forEach(raw => {
+    if (raw.every(cell => !cell.trim())) return;
+
+    let obj;
+
+    if (hasHeader) {
+      obj = csvObjectFromHeaders(headers, raw);
+    } else {
+      obj = {
+        code: raw[0] || "",
+        subject: raw[1] || "",
+        type: raw[2] || "Lecture",
+        day: raw[3] || "",
+        start: raw[4] || "",
+        end: raw[5] || "",
+        location: raw[6] || "",
+        lecturer: raw[7] || ""
+      };
+    }
+
+    const combined = raw.join(" ");
+    const timeRange = findTimeRange(combined);
+
+    output.push({
+      id: uid(),
+      code: (obj.code || findCode(combined) || `CLASS${output.length + 1}`).trim().toUpperCase(),
+      subject: (obj.subject || cleanSubjectName(combined, obj.code, obj.day, timeRange, obj.type, obj.location)).trim() || "Class",
+      type: obj.type || findType(combined),
+      day: normalizeDay(obj.day) || findDay(combined) || "Monday",
+      start: normalizeImportedTime(obj.start) || (timeRange ? timeRange.start : "09:00"),
+      end: normalizeImportedTime(obj.end) || (timeRange ? timeRange.end : "10:00"),
+      location: (obj.location || findLocation(combined) || "TBA").trim(),
+      lecturer: (obj.lecturer || "TBA").trim()
+    });
+  });
+
+  return dedupeRows(output);
+}
 
 </script>
 
