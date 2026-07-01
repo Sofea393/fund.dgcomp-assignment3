@@ -1219,6 +1219,19 @@ document.getElementById("enterDashboardBtn").addEventListener("click", () => {
   rebuildAttendanceFromTimetable();
   enterDashboard();
 });
+/* ENTER DASHBOARD */
+
+function enterDashboard() {
+  document.getElementById("onboardWrap").style.display = "none";
+  document.getElementById("app").classList.add("active");
+
+  document.getElementById("sidebarName").textContent = state.student.name;
+  document.getElementById("sidebarMajor").textContent = state.student.major;
+  document.getElementById("sidebarId").textContent = state.student.id;
+
+  renderView("dashboard");
+  startClock();
+}
 </script>
 
     
