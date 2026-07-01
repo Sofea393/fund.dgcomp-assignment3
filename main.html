@@ -814,7 +814,18 @@ function findType(text) {
 
   return "Lecture";
 }
+function normalizeTime(hour, minute, period) {
+  let h = Number(hour);
+  let m = minute ? Number(minute) : 0;
 
+  if (period) {
+    const p = period.toUpperCase();
+    if (p === "PM" && h < 12) h += 12;
+    if (p === "AM" && h === 12) h = 0;
+  }
+
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
 
 </script>
 
