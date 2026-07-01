@@ -1057,6 +1057,31 @@ function dedupeRows(rows) {
     return true;
   });
 }
+
+/* TIMETABLE SETUP ACTIONS */
+
+document.getElementById("addBuilderRowBtn").addEventListener("click", () => {
+  const row = normalizeDraftRow({
+    code: document.getElementById("builderCode").value,
+    subject: document.getElementById("builderSubject").value,
+    type: document.getElementById("builderType").value,
+    day: document.getElementById("builderDay").value,
+    start: document.getElementById("builderStart").value,
+    end: document.getElementById("builderEnd").value,
+    location: document.getElementById("builderLocation").value,
+    lecturer: document.getElementById("builderLecturer").value
+  });
+
+  if (!row.code || !row.subject || !row.start || !row.end) {
+    showStatus("Quick builder needs course code, subject, start time, and end time.", "error");
+    return;
+  }
+
+  timetableDraft.push(row);
+  renderReviewTable();
+  clearBuilderForm();
+  showStatus("Class added to review table.", "success");
+});
 </script>
 
     
