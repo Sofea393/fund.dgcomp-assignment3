@@ -1047,7 +1047,16 @@ function normalizeImportedTime(value) {
 
   return normalizeTime(match[1], match[2] || "00", match[3]);
 }
+function dedupeRows(rows) {
+  const seen = new Set();
 
+  return rows.filter(row => {
+    const key = `${row.code}|${row.day}|${row.start}|${row.end}|${row.location}`.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 </script>
 
     
