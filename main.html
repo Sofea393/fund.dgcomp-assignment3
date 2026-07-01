@@ -503,10 +503,172 @@ brand {
 </head>
 <body>
 
-    <h1>Welcome to My Website</h1>
-    <p>This is a simple paragraph of text on my new HTML page.</p>
+<!-- ONBOARDING -->
+
+<div class="onboard-wrap" id="onboardWrap">
+  <div class="onboard-card">
+
+    <!-- STEP 1 -->
+    <div id="profileStep">
+      <div class="onboard-eyebrow">Step 1 of 2</div>
+      <h1 class="onboard-title">Set up your student profile</h1>
+      <p class="onboard-desc">Enter your basic student details before setting up your timetable.</p>
+
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="studentName" placeholder="e.g. Ali Danish">
+      </div>
+
+      <div class="field">
+        <label>Engineering Major</label>
+        <select id="studentMajor">
+          <option value="">Select major</option>
+          <option>Mechanical Engineering</option>
+          <option>Electrical Engineering</option>
+          <option>Electronics Engineering</option>
+          <option>Civil Engineering</option>
+          <option>Software Engineering</option>
+          <option>Computer Engineering</option>
+          <option>Chemical Engineering</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Student ID</label>
+        <input type="text" id="studentId" placeholder="e.g. 243UA2458Y">
+      </div>
+
+      <button class="btn btn-primary" id="goTimetableBtn" disabled>
+        Continue to Timetable Setup
+      </button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="timetableStep" style="display:none;">
+      <div class="onboard-eyebrow">Step 2 of 2</div>
+      <h1 class="onboard-title">Set up your class timetable</h1>
+      <p class="onboard-desc">
+        Add your subjects manually or use the sample timetable for demo/testing.
+      </p>
+
+      <div class="grid grid-2" style="margin-bottom:18px;">
+        <div class="card">
+          <h3 style="margin-bottom:10px;">Manual Class Entry</h3>
+          <p class="muted" style="margin-bottom:12px;">
+            Add each class into the review table. You can still edit all rows before entering the dashboard.
+          </p>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Course Code</label>
+              <input type="text" id="builderCode" placeholder="e.g. AMT6153">
+            </div>
+
+            <div class="field">
+              <label>Subject</label>
+              <input type="text" id="builderSubject" placeholder="e.g. Engineering Mathematics">
+            </div>
+
+            <div class="field">
+              <label>Type</label>
+              <select id="builderType">
+                <option>Lecture</option>
+                <option>Tutorial</option>
+                <option>Lab</option>
+                <option>Practical</option>
+                <option>Seminar</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Day</label>
+              <select id="builderDay">
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Start</label>
+              <input type="time" id="builderStart">
+            </div>
+
+            <div class="field">
+              <label>End</label>
+              <input type="time" id="builderEnd">
+            </div>
+
+            <div class="field">
+              <label>Location</label>
+              <input type="text" id="builderLocation" placeholder="e.g. CLCR2045">
+            </div>
+
+            <div class="field">
+              <label>Lecturer</label>
+              <input type="text" id="builderLecturer" placeholder="e.g. Dr Ahmad">
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="addBuilderRowBtn">Add Class</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:10px;">Sample Timetable</h3>
+          <p class="muted" style="margin-bottom:12px;">
+            Use this for demo day or quick testing. It instantly fills the review table.
+          </p>
+
+          <button class="btn btn-green" id="useSampleBtn">Use Sample Timetable</button>
+
+          <div class="example-box" style="margin-top:14px;">Sample includes:
+AMT6153 Engineering Mathematics
+EEE210 Circuit Theory
+PHY102 Applied Physics
+with lecture, tutorial, and lab slots.</div>
+        </div>
+      </div>
+
+      <div class="status" id="importStatus"></div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin:14px 0;">
+        <button class="btn btn-ghost" id="addReviewRowBtn">+ Add Empty Row</button>
+        <button class="btn btn-danger" id="clearReviewBtn">Clear Review Table</button>
+        <button class="btn btn-ghost" id="backProfileBtn">Back</button>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:18px;">
+        <table class="table-preview">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Subject</th>
+              <th>Type</th>
+              <th>Day</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Location</th>
+              <th>Lecturer</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="reviewTableBody"></tbody>
+        </table>
+      </div>
+
+      <button class="btn btn-primary" id="enterDashboardBtn">
+        Confirm Timetable & Enter Dashboard
+      </button>
+    </div>
+
+  </div>
+</div>
+
     
-    <a href="https://www.w3schools.com">Visit W3Schools for tutorials</a>
 
 </body>
 </html>
