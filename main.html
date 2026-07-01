@@ -1098,6 +1098,55 @@ document.getElementById("useSampleBtn").addEventListener("click", () => {
   renderReviewTable();
   showStatus("Sample timetable loaded.", "success");
 });
+function getSampleTimetable() {
+  return [
+    {
+      id: uid(),
+      code: "AMT6153",
+      subject: "Engineering Mathematics",
+      type: "Lecture",
+      day: "Monday",
+      start: "10:00",
+      end: "12:00",
+      location: "CLCR2045",
+      lecturer: "Dr Ahmad"
+    },
+    {
+      id: uid(),
+      code: "AMT6153",
+      subject: "Engineering Mathematics",
+      type: "Tutorial",
+      day: "Wednesday",
+      start: "12:00",
+      end: "14:00",
+      location: "CLCR2046",
+      lecturer: "Dr Ahmad"
+    },
+    {
+      id: uid(),
+      code: "EEE210",
+      subject: "Circuit Theory",
+      type: "Lab",
+      day: "Friday",
+      start: "14:00",
+      end: "17:00",
+      location: "Engineering Lab 3",
+      lecturer: "Dr Lim"
+    },
+    {
+      id: uid(),
+      code: "PHY102",
+      subject: "Applied Physics",
+      type: "Lecture",
+      day: "Tuesday",
+      start: "09:00",
+      end: "11:00",
+      location: "Lecture Hall C",
+      lecturer: "Dr Kumar"
+    }
+  ];
+}
+
 </script>
 
     
