@@ -735,6 +735,43 @@ function showStatus(message, type = "info") {
   box.className = `status show ${type}`;
   box.textContent = message;
 }
+/* PROFILE SETUP */
+
+const studentName = document.getElementById("studentName");
+const studentMajor = document.getElementById("studentMajor");
+const studentId = document.getElementById("studentId");
+const goTimetableBtn = document.getElementById("goTimetableBtn");
+
+function checkProfile() {
+  goTimetableBtn.disabled = !(
+    studentName.value.trim() &&
+    studentMajor.value &&
+    studentId.value.trim()
+  );
+}
+
+studentName.addEventListener("input", checkProfile);
+studentMajor.addEventListener("change", checkProfile);
+studentId.addEventListener("input", checkProfile);
+
+goTimetableBtn.addEventListener("click", () => {
+  state.student.name = studentName.value.trim();
+  state.student.major = studentMajor.value;
+  state.student.id = studentId.value.trim();
+
+  document.getElementById("profileStep").style.display = "none";
+  document.getElementById("timetableStep").style.display = "block";
+
+  if (timetableDraft.length === 0) {
+    timetableDraft.push(createBlankClass());
+    renderReviewTable();
+  }
+});
+
+document.getElementById("backProfileBtn").addEventListener("click", () => {
+  document.getElementById("timetableStep").style.display = "none";
+  document.getElementById("profileStep").style.display = "block";
+});
   
 
 </script>
