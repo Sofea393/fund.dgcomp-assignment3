@@ -1,6 +1,4 @@
-from pathlib import Path
-
-readme = """# Campusly — Student Timetable and Academic Planner
+# Campusly — Student Timetable and Academic Planner
 
 Campusly is a simple interactive student planner designed for engineering students.  
 The program helps students set up their class timetable, track academic tasks, manage attendance records, and store absence or medical certificate submissions.
