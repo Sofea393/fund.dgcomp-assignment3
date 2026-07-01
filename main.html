@@ -667,6 +667,36 @@ with lecture, tutorial, and lab slots.</div>
 
   </div>
 </div>
+<!-- MAIN APP -->
+
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-title">EngiSpace</div>
+      <div class="brand-sub">Student Workspace</div>
+    </div>
+
+    <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+    <button class="nav-btn" data-view="timetable">Timetable</button>
+    <button class="nav-btn" data-view="tasks">Deadlines & Tasks</button>
+    <button class="nav-btn" data-view="absence">Absence & Medical</button>
+
+    <div class="sidebar-foot">
+      <strong id="sidebarName">Student</strong>
+      <div id="sidebarMajor" class="brand-sub">Major</div>
+      <div id="sidebarId" class="brand-sub">ID</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <strong id="topbarTitle">Dashboard</strong>
+      <span class="muted" id="clockText">--</span>
+    </div>
+
+    <section class="view" id="viewRoot"></section>
+  </main>
+</div>
 
     
 
