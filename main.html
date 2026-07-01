@@ -799,6 +799,10 @@ function normalizeDay(value) {
   if (text.startsWith("sun")) return "Sunday";
 
   return "";
+}
+function findDay(text) {
+  const match = String(text || "").match(/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Tues|Wed|Thu|Thur|Fri|Sat|Sun)\b/i);
+  return match ? normalizeDay(match[0]) : "";
 }  
 
 </script>
