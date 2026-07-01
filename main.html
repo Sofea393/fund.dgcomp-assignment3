@@ -826,6 +826,24 @@ function normalizeTime(hour, minute, period) {
 
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
+function findTimeRange(text) {
+  const value = String(text || "").replace(/[–—]/g, "-");
+
+  let match = value.match(/\b(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?\s*[-to]+\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?\b/i);
+
+  if (!match) {
+    return null;
+  }
+
+  let startPeriod = match[3] || match[6] || "";
+  let endPeriod = match[6] || match[3] || "";
+
+  return {
+    raw: match[0],
+    start: normalizeTime(match[1], match[2] || "00", startPeriod),
+    end: normalizeTime(match[4], match[5] || "00", endPeriod)
+  };
+}
 
 </script>
 
