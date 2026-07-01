@@ -863,6 +863,24 @@ function findLocation(text) {
 
   return "";
 }
+function cleanSubjectName(line, code, day, timeRange, type, location) {
+  let subject = String(line || "");
+
+  if (code) subject = subject.replace(new RegExp(code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), " ");
+  if (timeRange?.raw) subject = subject.replace(timeRange.raw, " ");
+
+  subject = subject
+    .replace(/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Tues|Wed|Thu|Thur|Fri|Sat|Sun)\b/gi, " ")
+    .replace(/\b(Lecture|Lec|Tutorial|Tutor|Lab|Practical|Seminar)\b/gi, " ")
+    .replace(location || "", " ")
+    .replace(/\b(?:Room|Rm|Lab|Hall|Block|CLCR|FOE|Classroom)\s*[:\-]?\s*[A-Z0-9\s\-\/]+/gi, " ")
+    .replace(/\bDr\.?\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)?/g, " ")
+    .replace(/[,|]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return subject || "Class";
+}
 
 </script>
 
