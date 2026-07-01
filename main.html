@@ -844,6 +844,10 @@ function findTimeRange(text) {
     end: normalizeTime(match[4], match[5] || "00", endPeriod)
   };
 }
+function findCode(text) {
+  const match = String(text || "").match(/\b[A-Z]{2,6}\s?-?\d{2,5}[A-Z]?\b/i);
+  return match ? match[0].replace(/[\s-]/g, "").toUpperCase() : "";
+}
 
 </script>
 
