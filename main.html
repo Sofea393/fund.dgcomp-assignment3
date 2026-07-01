@@ -772,7 +772,21 @@ document.getElementById("backProfileBtn").addEventListener("click", () => {
   document.getElementById("timetableStep").style.display = "none";
   document.getElementById("profileStep").style.display = "block";
 });
-  
+/* TIMETABLE DATA HELPERS */
+
+function createBlankClass() {
+  return {
+    id: uid(),
+    code: "",
+    subject: "",
+    type: "Lecture",
+    day: "Monday",
+    start: "",
+    end: "",
+    location: "",
+    lecturer: ""
+  };
+}  
 
 </script>
 
