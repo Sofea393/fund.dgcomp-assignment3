@@ -1360,17 +1360,63 @@ function renderView(view) {
   if (view === "absence") renderAbsence();
 }
 /* DASHBOARD */
+function timeToMinutes(time) {
+  const parts = String(time || "00:00").split(":");
+  const hours = Number(parts[0]) || 0;
+  const minutes = Number(parts[1]) || 0;
+  return hours * 60 + minutes;
+}
 
 function getNextClass() {
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const today = days[new Date().getDay()];
-  const nowTime = new Date().toTimeString().slice(0, 5);
+  const now = new Date();
+  const currentDayIndex = now.getDay();
+  const currentMinutes = now.getHours() *60 + now.getMinutes();
+  
 
-  const todayClasses = state.timetable
-    .filter(item => item.day === today && item.start > nowTime)
-    .sort((a, b) => a.start.localeCompare(b.start));
+    const upcomingClasses = state.timetable
+    .filter(item => item.day && item.start)
+    .map(item => {
+      const classDay = normalizeDay(item.day);
+      const classDayIndex = days.indexOf(classDay);
 
-  return todayClasses[0] || state.timetable[0] || null;
+      if (classDayIndex === -1) {
+        return null;
+      }
+
+      const startMinutes = timeToMinutes(item.start);
+      const endMinutes = timeToMinutes(item.end || item.start);
+
+      let daysAway = (classDayIndex - currentDayIndex + 7) % 7;
+      let minutesUntil;
+      let status = "Upcoming";
+
+      const isToday = daysAway === 0;
+      const isOngoingNow = isToday && startMinutes <= currentMinutes && endMinutes > currentMinutes;
+
+      if (isOngoingNow) {
+        minutesUntil = 0;
+        status = "Ongoing now";
+      } else {
+        if (isToday && startMinutes <= currentMinutes) {
+          daysAway = 7;
+        }
+
+        minutesUntil = daysAway * 1440 + (startMinutes - currentMinutes);
+      }
+
+      return {
+        ...item,
+        day: classDay,
+        daysAway,
+        minutesUntil,
+        status
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.minutesUntil - b.minutesUntil);
+
+  return upcomingClasses[0] || null;
 }
 
 function renderDashboard() {
@@ -1399,7 +1445,7 @@ function renderDashboard() {
             <strong>${escapeHtml(nextClass.code)} — ${escapeHtml(nextClass.subject)}</strong>
           </p>
           <p class="muted">
-            ${nextClass.day}, ${nextClass.start} - ${nextClass.end} · ${escapeHtml(nextClass.location)}
+            ${nextClass.status} · ${nextClass.day}, ${nextClass.start} - ${nextClass.end} · ${escapeHtml(nextClass.location)}
           </p>
         `
         : `<p class="muted">No class added yet.</p>`
