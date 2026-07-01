@@ -1020,6 +1020,24 @@ function splitCsvRows(text) {
 
   return rows;
 }
+function csvObjectFromHeaders(headers, row) {
+  const obj = {};
+
+  headers.forEach((header, index) => {
+    const value = row[index] || "";
+
+    if (header.includes("code")) obj.code = value;
+    else if (header.includes("subject") || header.includes("course name") || header === "name") obj.subject = value;
+    else if (header.includes("type")) obj.type = value;
+    else if (header.includes("day")) obj.day = value;
+    else if (header.includes("start")) obj.start = value;
+    else if (header.includes("end")) obj.end = value;
+    else if (header.includes("location") || header.includes("room")) obj.location = value;
+    else if (header.includes("lecturer") || header.includes("instructor")) obj.lecturer = value;
+  });
+
+  return obj;
+}
 
 </script>
 
