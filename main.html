@@ -1585,6 +1585,168 @@ function deleteTask(id) {
   renderTasks();
 }
 
+/* ABSENCE PAGE */
+
+function renderAbsence() {
+  const root = document.getElementById("viewRoot");
+
+  root.innerHTML = `
+    <div class="view-head">
+      <div class="view-eyebrow">Absence & Medical</div>
+      <h1 class="view-title">Attendance and MC Record</h1>
+      <p class="muted">Manually update attendance and record medical certificate submissions.</p>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3 style="margin-bottom:14px;">Attendance by Course</h3>
+        ${renderAttendanceControls()}
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:14px;">Submit Absence / MC Record</h3>
+
+        <div class="field">
+          <label>Class</label>
+          <select id="absenceClass">
+            ${getClassOptions()}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Date of Absence</label>
+          <input type="date" id="absenceDate">
+        </div>
+
+        <div class="field">
+          <label>Reason</label>
+          <textarea id="absenceReason" placeholder="e.g. Medical leave due to fever"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Medical Certificate File</label>
+          <input type="file" id="mcFile" accept=".pdf,.png,.jpg,.jpeg">
+        </div>
+
+        <button class="btn btn-primary" onclick="addAbsence()">Save Absence Record</button>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;">
+      <h3 style="margin-bottom:12px;">Absence Records</h3>
+      ${renderAbsenceList()}
+    </div>
+  `;
+}
+
+function renderAttendanceControls() {
+  const courses = Object.keys(state.attendance);
+
+  if (courses.length === 0) {
+    return `<p class="muted">No courses available.</p>`;
+  }
+
+  return courses.map(code => {
+    const value = state.attendance[code];
+
+    return `
+      <div class="attendance-row">
+        <div class="attendance-top">
+          <span>${escapeHtml(code)}</span>
+          <span>${value}%</span>
+        </div>
+
+        <div class="bar-track">
+          <div 
+            class="bar-fill" 
+            style="width:${value}%; background:${value < 75 ? "var(--red)" : "var(--green)"};">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:8px;">
+          <input 
+            type="number" 
+            min="0" 
+            max="100" 
+            value="${value}" 
+            onchange="updateAttendance('${code}', this.value)"
+          >
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function updateAttendance(code, value) {
+  const number = Math.max(0, Math.min(100, Number(value)));
+  state.attendance[code] = number;
+  renderAbsence();
+}
+
+function getClassOptions() {
+  if (state.timetable.length === 0) {
+    return `<option value="">No classes available</option>`;
+  }
+
+  return state.timetable.map(item => `
+    <option value="${item.id}">
+      ${escapeHtml(item.code)} — ${item.day} ${item.start}
+    </option>
+  `).join("");
+}
+
+function addAbsence() {
+  const classId = document.getElementById("absenceClass").value;
+  const date = document.getElementById("absenceDate").value;
+  const reason = document.getElementById("absenceReason").value.trim();
+  const fileInput = document.getElementById("mcFile");
+
+  if (!classId || !date || !reason) {
+    alert("Please fill in class, date, and reason.");
+    return;
+  }
+
+  const selectedClass = state.timetable.find(item => item.id === classId);
+
+  state.absences.push({
+    id: uid(),
+    classCode: selectedClass ? selectedClass.code : "Unknown",
+    className: selectedClass ? selectedClass.subject : "Unknown",
+    date,
+    reason,
+    fileName: fileInput.files.length ? fileInput.files[0].name : "No file attached"
+  });
+
+  renderAbsence();
+}
+
+function renderAbsenceList() {
+  if (state.absences.length === 0) {
+    return `<div class="card"><p class="muted">No absence records added yet.</p></div>`;
+  }
+
+  return state.absences.map(item => `
+    <div class="list-item">
+      <div class="list-main">
+        <div class="list-title">
+          ${escapeHtml(item.classCode)} — ${escapeHtml(item.className)}
+        </div>
+        <div class="list-sub">
+          ${item.date} · ${escapeHtml(item.reason)} · Attachment: ${escapeHtml(item.fileName)}
+        </div>
+      </div>
+
+      <button class="btn btn-danger" onclick="deleteAbsence('${item.id}')">Delete</button>
+    </div>
+  `).join("");
+}
+
+function deleteAbsence(id) {
+  state.absences = state.absences.filter(item => item.id !== id);
+  renderAbsence();
+}
+
+
 
 
 </script>
