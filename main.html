@@ -973,6 +973,53 @@ function parseCsv(text) {
 
   return dedupeRows(output);
 }
+function splitCsvRows(text) {
+  const rows = [];
+  let current = "";
+  let row = [];
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && next === '"') {
+      current += '"';
+      i++;
+      continue;
+    }
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      row.push(current);
+      current = "";
+      continue;
+    }
+
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (current || row.length) {
+        row.push(current);
+        rows.push(row);
+        row = [];
+        current = "";
+      }
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current || row.length) {
+    row.push(current);
+    rows.push(row);
+  }
+
+  return rows;
+}
 
 </script>
 
