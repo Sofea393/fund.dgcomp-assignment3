@@ -1232,6 +1232,33 @@ function enterDashboard() {
   renderView("dashboard");
   startClock();
 }
+/* NAVIGATION */
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
+    renderView(button.dataset.view);
+  });
+});
+
+function renderView(view) {
+  state.currentView = view;
+
+  const titles = {
+    dashboard: "Dashboard",
+    timetable: "Timetable",
+    tasks: "Deadlines & Tasks",
+    absence: "Absence & Medical"
+  };
+
+  document.getElementById("topbarTitle").textContent = titles[view];
+
+  if (view === "dashboard") renderDashboard();
+  if (view === "timetable") renderTimetable();
+  if (view === "tasks") renderTasks();
+  if (view === "absence") renderAbsence();
+}
 </script>
 
     
