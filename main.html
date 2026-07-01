@@ -1184,6 +1184,11 @@ function renderReviewTable() {
     </tr>
   `).join("");
 }
+function updateDraft(index, field, value) {
+  if (timetableDraft[index]) {
+    timetableDraft[index][field] = value;
+  }
+}
 </script>
 
     
