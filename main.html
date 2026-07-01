@@ -881,6 +881,43 @@ function cleanSubjectName(line, code, day, timeRange, type, location) {
 
   return subject || "Class";
 }
+function parseTimetableText(text) {
+  const lines = String(text || "")
+    .replace(/\r/g, "\n")
+    .split(/\n+/)
+    .map(line => line.trim())
+    .filter(line => line.length > 3);
+
+  const rows = [];
+
+  lines.forEach(line => {
+    const code = findCode(line);
+    const day = findDay(line);
+    const timeRange = findTimeRange(line);
+
+    if (!code && !day && !timeRange) {
+      return;
+    }
+
+    const type = findType(line);
+    const location = findLocation(line);
+    const subject = cleanSubjectName(line, code, day, timeRange, type, location);
+
+    rows.push({
+      id: uid(),
+      code: code || `CLASS${rows.length + 1}`,
+      subject,
+      type,
+      day: day || "Monday",
+      start: timeRange ? timeRange.start : "09:00",
+      end: timeRange ? timeRange.end : "10:00",
+      location: location || "TBA",
+      lecturer: "TBA"
+    });
+  });
+
+  return dedupeRows(rows);
+}
 
 </script>
 
