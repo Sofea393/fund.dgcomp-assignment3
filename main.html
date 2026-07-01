@@ -1082,6 +1082,22 @@ document.getElementById("addBuilderRowBtn").addEventListener("click", () => {
   clearBuilderForm();
   showStatus("Class added to review table.", "success");
 });
+function clearBuilderForm() {
+  document.getElementById("builderCode").value = "";
+  document.getElementById("builderSubject").value = "";
+  document.getElementById("builderType").value = "Lecture";
+  document.getElementById("builderDay").value = "Monday";
+  document.getElementById("builderStart").value = "";
+  document.getElementById("builderEnd").value = "";
+  document.getElementById("builderLocation").value = "";
+  document.getElementById("builderLecturer").value = "";
+}
+
+document.getElementById("useSampleBtn").addEventListener("click", () => {
+  timetableDraft = getSampleTimetable();
+  renderReviewTable();
+  showStatus("Sample timetable loaded.", "success");
+});
 </script>
 
     
