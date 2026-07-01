@@ -1,16 +1,1213 @@
-<!--This is our main code for our interactive program for part 2 of the fund. digi comp assignment-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>My First Webpage</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EngiSpace — Built for Engineering Students</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
+<style>
+/* Your full original CSS */
+:root{
+  --ink:#0B1524;
+  --ink-2:#101E36;
+  --blueprint:#2456E5;
+  --blueprint-soft:#E8EEFF;
+  --paper:#F5F6F2;
+  --paper-2:#EDEFE9;
+  --card:#FFFFFF;
+  --graphite:#1A1F29;
+  --muted:#5B6478;
+  --line:#E1E4DC;
+  --amber:#F5A623;
+  --amber-soft:#FFF4DE;
+  --circuit:#2FBE87;
+  --circuit-soft:#E4F9EF;
+  --alert:#E5484D;
+  --alert-soft:#FDE8E8;
+  --radius:14px;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --sidebar-w:248px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{font-family:var(--font-body); background:var(--paper); color:var(--graphite); -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+h1,h2,h3,h4{font-family:var(--font-display); letter-spacing:-0.01em;}
+button{font-family:var(--font-body); cursor:pointer;}
+a{color:inherit;}
+::selection{background:var(--blueprint); color:#fff;}
+.blueprint-grid{background-image:linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px); background-size:24px 24px;}
+#app{display:none; min-height:100vh;}
+#app.active{display:flex;}
+.sidebar{width:var(--sidebar-w); background:var(--ink); color:#fff; min-height:100vh; position:sticky; top:0; display:flex; flex-direction:column; flex-shrink:0; z-index:50;}
+.sidebar-brand{padding:22px 20px 18px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.08);}
+.brand-mark{width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,var(--blueprint),#5B8CFF); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700; font-size:14px; flex-shrink:0;}
+.brand-name{font-family:var(--font-display); font-weight:700; font-size:17px;}
+.brand-sub{font-family:var(--font-mono); font-size:9.5px; color:#7C8AA8; letter-spacing:.08em; text-transform:uppercase;}
+.nav-group{padding:14px 12px; overflow-y:auto; flex:1;}
+.nav-label{font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; color:#586688; text-transform:uppercase; padding:14px 10px 6px;}
+.nav-item{display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:9px; margin-bottom:2px; color:#B7C0D8; font-size:13.5px; font-weight:500; border:none; background:transparent; width:100%; text-align:left; transition:background .15s, color .15s;}
+.nav-item:hover{background:rgba(255,255,255,0.06); color:#fff;}
+.nav-item.active{background:var(--blueprint); color:#fff;}
+.nav-icon{width:18px; height:18px; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+.nav-badge{margin-left:auto; background:var(--amber); color:#2b1c00; font-family:var(--font-mono); font-size:10px; font-weight:700; border-radius:20px; padding:1px 7px;}
+.sidebar-foot{padding:14px 18px 18px; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:10px;}
+.avatar{width:34px; height:34px; border-radius:50%; background:var(--blueprint-soft); color:var(--blueprint); display:flex; align-items:center; justify-content:center; font-weight:700; font-family:var(--font-display); font-size:13px; flex-shrink:0;}
+.sidebar-foot .who{font-size:12.5px; font-weight:600;}
+.sidebar-foot .major{font-size:11px; color:#8592AE; font-family:var(--font-mono);}
+.main{flex:1; min-width:0; min-height:100vh; display:flex; flex-direction:column;}
+.topbar{height:64px; background:var(--card); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; padding:0 22px; position:sticky; top:0; z-index:40;}
+.hamburger{display:none; background:none; border:none; font-size:20px; color:var(--graphite);}
+.search-wrap{flex:1; max-width:520px; position:relative;}
+.search-wrap input{width:100%; padding:9px 14px 9px 36px; border-radius:9px; border:1px solid var(--line); background:var(--paper); font-size:13.5px; font-family:var(--font-body);}
+.search-wrap input:focus{outline:2px solid var(--blueprint); outline-offset:1px; background:#fff;}
+.search-icon{position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.5; font-size:14px;}
+.topbar-right{margin-left:auto; display:flex; align-items:center; gap:16px;}
+.pill-clock{font-family:var(--font-mono); font-size:12px; color:var(--muted); background:var(--paper); padding:7px 12px; border-radius:20px; border:1px solid var(--line);}
+.view{padding:26px 30px 60px; max-width:1180px; width:100%; margin:0 auto;}
+.view-head{margin-bottom:22px;}
+.view-eyebrow{font-family:var(--font-mono); font-size:11px; color:var(--blueprint); text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px;}
+.view-title{font-size:26px; font-weight:700;}
+.view-desc{color:var(--muted); font-size:14px; margin-top:4px;}
+.grid{display:grid; gap:16px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px;}
+.card-tight{padding:14px 16px;}
+.hud{background:var(--ink); color:#fff; border-radius:16px; padding:22px 24px; position:relative; overflow:hidden; margin-bottom:20px;}
+.hud::before{content:''; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size:22px 22px; pointer-events:none;}
+.hud-row{display:flex; align-items:center; gap:22px; position:relative; flex-wrap:wrap;}
+.hud-label{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:#7C8AA8; margin-bottom:6px;}
+.hud-title{font-family:var(--font-display); font-size:21px; font-weight:700;}
+.hud-meta{font-family:var(--font-mono); font-size:12.5px; color:#AEB9D4; margin-top:5px; display:flex; gap:14px; flex-wrap:wrap;}
+.hud-timer{margin-left:auto; text-align:center; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:12px; padding:12px 22px;}
+.hud-timer .num{font-family:var(--font-mono); font-size:26px; font-weight:700; color:var(--amber);}
+.hud-timer .lbl{font-family:var(--font-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:#8592AE; margin-top:2px;}
+.hud-empty{color:#AEB9D4; font-size:13.5px;}
+.onboard-wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--ink); position:relative; padding:24px;}
+.onboard-wrap::before{content:''; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px); background-size:28px 28px;}
+.onboard-card{background:var(--paper); border-radius:20px; width:100%; max-width:560px; padding:38px 38px 32px; position:relative; box-shadow:0 30px 80px rgba(0,0,0,0.45); transition:max-width .2s;}
+.onboard-card.wide{max-width:720px;}
+.review-row{display:grid; grid-template-columns:1fr 1fr 90px 70px 70px 70px 32px; gap:6px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line);}
+.review-row input, .review-row select{width:100%; padding:6px 7px; border-radius:6px; border:1.3px solid var(--line); font-size:11.5px; font-family:var(--font-body);}
+.review-row .rm-row{background:none; border:none; color:var(--alert); font-size:16px;}
+.review-head-row{display:grid; grid-template-columns:1fr 1fr 90px 70px 70px 70px 32px; gap:6px; font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; color:var(--muted); padding-bottom:6px; border-bottom:1.5px solid var(--graphite);}
+.onboard-steps{display:flex; gap:6px; margin-bottom:22px;}
+.step-dot{height:4px; flex:1; background:var(--line); border-radius:3px; overflow:hidden;}
+.step-dot.done{background:var(--blueprint);}
+.onboard-eyebrow{font-family:var(--font-mono); font-size:11px; color:var(--blueprint); text-transform:uppercase; letter-spacing:.1em;}
+.onboard-title{font-size:24px; font-weight:700; margin:6px 0 6px;}
+.onboard-desc{color:var(--muted); font-size:13.5px; margin-bottom:22px;}
+.field{margin-bottom:14px;}
+.field label{display:block; font-size:12px; font-weight:600; margin-bottom:6px; color:var(--graphite);}
+.field input, .field select{width:100%; padding:11px 13px; border-radius:9px; border:1.5px solid var(--line); font-family:var(--font-body); font-size:14px; background:#fff;}
+.field input:focus, .field select:focus{outline:none; border-color:var(--blueprint);}
+.btn{border:none; border-radius:9px; padding:11px 20px; font-weight:600; font-size:13.5px; display:inline-flex; align-items:center; gap:8px; transition:transform .1s, opacity .15s;}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--blueprint); color:#fff;}
+.btn-primary:hover{opacity:.92;}
+.btn-primary:disabled{opacity:.4; cursor:not-allowed;}
+.btn-ghost{background:transparent; color:var(--graphite); border:1.5px solid var(--line);}
+.btn-ghost:hover{border-color:var(--blueprint); color:var(--blueprint);}
+.btn-danger-ghost{background:transparent; color:var(--alert); border:1.5px solid #F3C4C5;}
+.btn-block{width:100%; justify-content:center;}
+.btn-sm{padding:7px 13px; font-size:12.5px; border-radius:7px;}
+.dropzone{border:2px dashed var(--line); border-radius:12px; padding:30px 20px; text-align:center; cursor:pointer; transition:border-color .15s, background .15s; background:#FBFBF9;}
+.dropzone:hover, .dropzone.drag{border-color:var(--blueprint); background:var(--blueprint-soft);}
+.dropzone .dz-icon{font-size:30px; margin-bottom:8px;}
+.dropzone .dz-title{font-weight:600; font-size:14px;}
+.dropzone .dz-sub{font-size:12px; color:var(--muted); margin-top:4px; font-family:var(--font-mono);}
+.file-chip{display:flex; align-items:center; gap:10px; background:#fff; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:12px;}
+.file-chip .fname{font-size:13px; font-weight:600; flex:1;}
+.file-chip .fsize{font-size:11px; color:var(--muted); font-family:var(--font-mono);}
+.spinner{width:16px; height:16px; border:2.5px solid rgba(0,0,0,0.15); border-top-color:var(--blueprint); border-radius:50%; animation:spin .7s linear infinite; display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-box{background:var(--alert-soft); border:1.5px solid #F3C4C5; border-radius:12px; padding:16px 18px; margin-top:14px; display:flex; gap:12px; align-items:flex-start;}
+.error-box .ic{font-size:19px; line-height:1;}
+.error-box h4{font-size:13.5px; color:#B02428; margin-bottom:4px;}
+.error-box p{font-size:12.5px; color:#8A2124; line-height:1.5;}
+.success-box{background:var(--circuit-soft); border:1.5px solid #A9E7C8; border-radius:12px; padding:14px 16px; margin-top:14px; display:flex; gap:10px; align-items:center; font-size:13px; color:#116441; font-weight:600;}
+.task-row{display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:#fff; margin-bottom:10px;}
+.task-type-tag{font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; padding:3px 8px; border-radius:6px; font-weight:700; flex-shrink:0;}
+.tag-assignment{background:var(--blueprint-soft); color:var(--blueprint);}
+.tag-midterm{background:#FDE9CF; color:#9A5B00;}
+.tag-final{background:var(--alert-soft); color:#B02428;}
+.tag-lab{background:var(--circuit-soft); color:#116441;}
+.task-info{flex:1; min-width:0;}
+.task-course{font-family:var(--font-mono); font-size:11px; color:var(--muted);}
+.task-name{font-weight:600; font-size:14px; margin-top:1px;}
+.task-due{text-align:right; flex-shrink:0;}
+.task-due .d{font-family:var(--font-mono); font-size:13px; font-weight:700;}
+.task-due .rel{font-size:10.5px; color:var(--muted);}
+.alert-flag{background:var(--amber); color:#2B1C00; font-family:var(--font-mono); font-weight:700; font-size:10px; padding:3px 9px; border-radius:20px; white-space:nowrap; flex-shrink:0;}
+.check-circle{width:20px; height:20px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; transition:.15s;}
+.check-circle.done{background:var(--circuit); border-color:var(--circuit);}
+.tt-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:#fff;}
+.tt-grid{display:grid; grid-template-columns:64px repeat(5,1fr); min-width:760px;}
+.tt-head{font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); padding:10px 6px; text-align:center; border-bottom:1px solid var(--line); border-left:1px solid var(--line); background:var(--paper);}
+.tt-head:first-child{border-left:none;}
+.tt-time{font-family:var(--font-mono); font-size:10px; color:var(--muted); padding:4px 6px; border-top:1px solid var(--line); text-align:right;}
+.tt-cell{border-top:1px solid var(--line); border-left:1px solid var(--line); min-height:52px; position:relative; padding:2px;}
+.tt-block{background:var(--blueprint-soft); border-left:3px solid var(--blueprint); border-radius:6px; padding:5px 7px; font-size:11px; cursor:pointer; height:100%; transition:transform .1s;}
+.tt-block:hover{transform:scale(1.02);}
+.tt-block.lab{background:var(--circuit-soft); border-left-color:var(--circuit);}
+.tt-block.tutorial{background:var(--amber-soft); border-left-color:var(--amber);}
+.tt-block .code{font-family:var(--font-mono); font-weight:700; font-size:10.5px;}
+.tt-block .loc{color:var(--muted); font-size:9.5px; margin-top:1px;}
+.modal-overlay{position:fixed; inset:0; background:rgba(11,21,36,0.55); display:none; align-items:center; justify-content:center; z-index:200; padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff; border-radius:16px; padding:26px; max-width:420px; width:100%; box-shadow:0 30px 80px rgba(0,0,0,0.35);}
+.modal-close{float:right; background:none; border:none; font-size:18px; color:var(--muted);}
+.modal h3{font-size:18px; margin-bottom:2px;}
+.modal .mono-line{font-family:var(--font-mono); font-size:12.5px; color:var(--muted); margin:3px 0;}
+.modal-divider{height:1px; background:var(--line); margin:14px 0;}
+.attend-row{display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px solid var(--line);}
+.attend-row:last-child{border-bottom:none;}
+.attend-code{font-family:var(--font-mono); font-weight:700; font-size:12.5px; width:74px; flex-shrink:0;}
+.attend-bar-track{flex:1; height:9px; background:var(--paper-2); border-radius:6px; overflow:hidden;}
+.attend-bar-fill{height:100%; border-radius:6px;}
+.attend-pct{font-family:var(--font-mono); font-size:12.5px; font-weight:700; width:44px; text-align:right; flex-shrink:0;}
+.chip{display:inline-flex; align-items:center; gap:6px; background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:6px 13px; font-size:12.5px; font-weight:600; cursor:pointer;}
+.chip.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+.section-title{font-size:15px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px;}
+.muted{color:var(--muted);}
+.divider{height:1px; background:var(--line); margin:18px 0;}
+.empty-state{text-align:center; padding:40px 20px; color:var(--muted);}
+.empty-state .ic{font-size:32px; margin-bottom:10px;}
+.call-row{display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:#fff; margin-bottom:10px;}
+.call-dot{width:9px; height:9px; border-radius:50%; background:var(--circuit); flex-shrink:0; box-shadow:0 0 0 4px var(--circuit-soft);}
+.office-tabs{display:flex; gap:6px; overflow-x:auto; margin-bottom:18px; padding-bottom:2px;}
+.office-frame{border:1px solid var(--line); border-radius:14px; background:#fff; min-height:420px; padding:0; overflow:hidden;}
+.office-frame-head{background:var(--paper); border-bottom:1px solid var(--line); padding:10px 16px; font-family:var(--font-mono); font-size:11.5px; color:var(--muted); display:flex; align-items:center; gap:8px;}
+.office-frame-body{padding:24px;}
+.dot3{display:flex; gap:5px;}
+.dot3 span{width:9px; height:9px; border-radius:50%; background:var(--line);}
+.quiz-card{border:1px solid var(--line); border-radius:14px; padding:16px; background:#fff;}
+.quiz-timer{font-family:var(--font-mono); font-weight:700; color:var(--blueprint); font-size:13px;}
+.qopt{display:block; width:100%; text-align:left; padding:10px 13px; border:1.5px solid var(--line); border-radius:9px; margin-bottom:8px; background:#fff; font-size:13.5px;}
+.qopt:hover{border-color:var(--blueprint);}
+.qopt.correct{background:var(--circuit-soft); border-color:var(--circuit); font-weight:600;}
+.qopt.wrong{background:var(--alert-soft); border-color:var(--alert); font-weight:600;}
+@media (max-width:900px){
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  .sidebar{position:fixed; left:-260px; height:100vh; transition:left .2s; box-shadow:0 0 40px rgba(0,0,0,0.3);}
+  .sidebar.open{left:0;}
+  .hamburger{display:block;}
+  .view{padding:18px 16px 50px;}
+  .hud-timer{margin-left:0; width:100%;}
+}
+</style>
 </head>
 <body>
 
-    <h1>Welcome to My Website</h1>
-    <p>This is a simple paragraph of text on my new HTML page.</p>
-    
-    <a href="https://www.w3schools.com">Visit W3Schools for tutorials</a>
+<!-- ONBOARDING -->
+<div class="onboard-wrap" id="onboardWrap">
+  <div class="onboard-card" id="onboardCard">
+    <div id="stepProfile">
+      <div class="onboard-steps"><div class="step-dot done"></div><div class="step-dot" id="dot2"></div></div>
+      <div class="onboard-eyebrow">Welcome to EngiSpace · Step 1 of 2</div>
+      <h1 class="onboard-title">Let's set up your workspace</h1>
+      <p class="onboard-desc">A few details so we can personalize your dashboard, calls, and deadline tracker.</p>
+      <div class="field"><label for="fName">Full name</label><input id="fName" type="text" placeholder="e.g. Amira Haslinda" /></div>
+      <div class="field"><label for="fMajor">Engineering major</label><select id="fMajor"><option value="">Select your major</option><option>Mechanical Engineering</option><option>Electrical Engineering</option><option>Electronics Engineering</option><option>Civil Engineering</option><option>Software Engineering</option><option>Chemical Engineering</option><option>Computer Engineering</option></select></div>
+      <div class="field"><label for="fId">Student ID</label><input id="fId" type="text" placeholder="e.g. ENG2024118" /></div>
+      <button class="btn btn-primary btn-block" id="toStep2Btn" disabled>Continue to timetable upload →</button>
+    </div>
 
+    <div id="stepUpload" style="display:none;">
+      <div class="onboard-steps"><div class="step-dot done"></div><div class="step-dot done"></div></div>
+      <div class="onboard-eyebrow">Step 2 of 2</div>
+      <h1 class="onboard-title">Upload your class timetable</h1>
+      <p class="onboard-desc">PDF or image. Grid-aware OCR is active.</p>
+      <div class="dropzone" id="dropzone">
+        <div class="dz-icon">📄</div>
+        <div class="dz-title">Drag & drop your timetable, or click to browse</div>
+        <div class="dz-sub">ACCEPTS: .PDF · .PNG · .JPG</div>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg" style="display:none;" />
+      <div id="fileChipArea"></div>
+      <div id="validationArea"></div>
+      <div style="display:flex; gap:10px; margin-top:18px;">
+        <button class="btn btn-ghost" id="backToProfile">← Back</button>
+        <button class="btn btn-primary btn-block" id="validateBtn" style="display:none;">Analyze timetable</button>
+      </div>
+      <p class="muted" style="font-size:11px; margin-top:16px; font-family:var(--font-mono);">DEMO CONTROLS</p>
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <button class="btn btn-ghost btn-sm" id="forceValid">Use sample data instead</button>
+        <button class="btn btn-danger-ghost btn-sm" id="forceInvalid">Simulate ✕ invalid file</button>
+      </div>
+    </div>
+
+    <div id="stepReview" style="display:none; max-width:640px;">
+      <div class="onboard-eyebrow">Review extraction</div>
+      <h1 class="onboard-title" style="font-size:21px;">Here's what we read from your file</h1>
+      <p class="onboard-desc">OCR isn't perfect — check each row and fix anything that's off.</p>
+      <div id="reviewTableArea" style="max-height:340px; overflow-y:auto; margin-bottom:14px;"></div>
+      <button class="btn btn-ghost btn-sm" id="addReviewRow">+ Add missing class</button>
+      <div style="display:flex; gap:10px; margin-top:18px;">
+        <button class="btn btn-ghost" id="backToUploadFromReview">← Re-upload</button>
+        <button class="btn btn-primary btn-block" id="confirmReviewBtn">Confirm & build my workspace →</button>
+      </div>
+    </div>
+
+    <div id="stepError" style="display:none;">
+      <div class="onboard-eyebrow" style="color:var(--alert);">Upload failed</div>
+      <h1 class="onboard-title">Invalid File Format</h1>
+      <div class="error-box">
+        <div class="ic">⚠️</div>
+        <div>
+          <h4>We couldn't detect a valid timetable layout.</h4>
+          <p>Please ensure your file clearly displays days, times, and subject slots.</p>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="reuploadBtn" style="margin-top:18px;">↺ Re-upload Timetable</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ES</div>
+      <div>
+        <div class="brand-name">EngiSpace</div>
+        <div class="brand-sub">Engineering Workspace</div>
+      </div>
+    </div>
+    <nav class="nav-group">
+      <button class="nav-item active" data-view="dashboard"><span class="nav-icon">▣</span>Dashboard</button>
+      <button class="nav-item" data-view="calls"><span class="nav-icon">◉</span>Class Calls</button>
+      <button class="nav-item" data-view="deadlines"><span class="nav-icon">◷</span>Deadlines & Tasks<span class="nav-badge" id="deadlineBadge">0</span></button>
+      <button class="nav-item" data-view="timetable"><span class="nav-icon">▦</span>Timetable</button>
+      <button class="nav-item" data-view="absence"><span class="nav-icon">✚</span>Absence & Medical</button>
+      <button class="nav-item" data-view="mocktests"><span class="nav-icon">✎</span>Mock Tests</button>
+      <div class="nav-label">Office Suite</div>
+      <button class="nav-item" data-view="office"><span class="nav-icon">▤</span>Open Office Suite</button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="avatar" id="avatarInit">?</div>
+      <div>
+        <div class="who" id="footName">—</div>
+        <div class="major" id="footMajor">—</div>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="globalSearch" placeholder="Search resources, courses, tasks, notes across EngiSpace…" />
+      </div>
+      <div class="topbar-right">
+        <div class="pill-clock" id="clockPill">—</div>
+      </div>
+    </div>
+    <div class="view" id="viewRoot"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script>
+/* ================================================================
+   STATE & SAMPLE DATA
+   ================================================================ */
+const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
+const DAY_FULL = {Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday"};
+const HOURS = [7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+
+const state = {
+  student: { name:"", major:"", id:"" },
+  onboarded: false,
+  timetable: [],
+  tasks: [],
+  announcements: [],
+  attendance: {},
+  currentView: "dashboard",
+  officeTab: "word"
+};
+
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+function generateMockTimetable(major){
+  const streams = {
+    "Mechanical Engineering":[["MEC201","Thermodynamics II"],["MEC214","Fluid Mechanics"],["MEC230","CAD & Design Lab"],["MEC205","Manufacturing Processes"]],
+    "Electrical Engineering":[["EEE210","Circuit Theory II"],["EEE225","Digital Electronics"],["EEE240","Electrical Machines Lab"],["EEE201","Signals & Systems"]],
+    "Electronics Engineering":[["ELE212","Analog Electronics"],["ELE228","Microprocessor Systems"],["ELE245","Electronics Design Lab"],["ELE205","Communication Systems"]],
+    "Civil Engineering":[["CIV220","Structural Analysis"],["CIV231","Soil Mechanics"],["CIV250","Surveying Lab"],["CIV205","Reinforced Concrete Design"]],
+    "Software Engineering":[["SWE301","Software Architecture"],["SWE220","Database Systems"],["SWE245","Software Studio Lab"],["SWE210","Algorithms & Complexity"]],
+    "Chemical Engineering":[["CHE215","Mass Transfer"],["CHE228","Reaction Engineering"],["CHE250","Unit Operations Lab"],["CHE201","Thermodynamics"]],
+    "Computer Engineering":[["CPE212","Computer Architecture"],["CPE230","Embedded Systems Lab"],["CPE221","Operating Systems"],["CPE205","Digital Logic Design"]]
+  };
+  const set = streams[major] || streams["Software Engineering"];
+  const instructors = ["Dr. Farah Yusof","Prof. Wei Ming Tan","Dr. Anand Krishnan","Dr. Nurul Iman","Prof. Rachel Ong"];
+  const locations = ["Block A · Rm 204","Eng Lab 3","Block C · Rm 118","Design Studio 2","Lecture Hall B"];
+  const types = ["Lecture","Tutorial","Lab"];
+  const rows = [];
+  set.forEach((course,i)=>{
+    const day = DAYS[i % DAYS.length];
+    const start = HOURS[(i*2+1) % HOURS.length];
+    const type = types[i % types.length];
+    const dur = type==="Lab" ? 3 : (type==="Tutorial"?1:2);
+    rows.push({id:uid(), courseCode:course[0], courseName:course[1], type, dayOfWeek:day, startTime:start, endTime:Math.min(start+dur,18), location:locations[i % locations.length], instructor:instructors[i % instructors.length]});
+    const day2 = DAYS[(i+2) % DAYS.length];
+    const start2 = HOURS[(i*3+2) % HOURS.length];
+    rows.push({id:uid(), courseCode:course[0], courseName:course[1], type:types[(i+1)%3], dayOfWeek:day2, startTime:start2, endTime:Math.min(start2+1,18), location:locations[(i+2) % locations.length], instructor:instructors[i % instructors.length]});
+  });
+  return rows;
+}
+
+function generateMockTasks(timetable){
+  const now = new Date();
+  const kinds = [
+    {type:"Assignment", tag:"tag-assignment", verbs:["Lab Report","Problem Set","Design Brief"]},
+    {type:"Midterm", tag:"tag-midterm", verbs:["Midterm Exam"]},
+    {type:"Final", tag:"tag-final", verbs:["Final Exam"]},
+    {type:"Lab", tag:"tag-lab", verbs:["Lab Practical"]}
+  ];
+  const courses = [...new Set(timetable.map(t=>t.courseCode))];
+  const tasks = [];
+  const offsets = [2,5,9,13,14,18,25,33,3,7];
+  courses.forEach((c,i)=>{
+    const kind = kinds[i % kinds.length];
+    const d = new Date(now); d.setDate(d.getDate()+ (offsets[i % offsets.length]));
+    tasks.push({
+      id:uid(), courseCode:c, kind:kind.type, tag:kind.tag,
+      name:`${kind.verbs[i % kind.verbs.length]} — ${c}`,
+      due:d, done:false
+    });
+  });
+  return tasks.sort((a,b)=>a.due-b.due);
+}
+
+function generateAnnouncements(){
+  const now = new Date();
+  const items = [
+    {title:"Faculty Career Fair — Engineering Booths", days:13},
+    {title:"Course Registration Window Opens", days:14},
+    {title:"Semester Project Proposal Deadline", days:11},
+    {title:"Guest Lecture: Sustainable Infrastructure", days:6}
+  ];
+  return items.map(it=>{
+    const d = new Date(now); d.setDate(d.getDate()+it.days);
+    return {...it, date:d, visible: it.days<=14};
+  });
+}
+
+function generateAttendance(timetable){
+  const courses = [...new Set(timetable.map(t=>t.courseCode))];
+  const att = {};
+  courses.forEach((c,i)=>{
+    const seed = (i*37+13)%100;
+    att[c] = Math.max(58, 100-seed%42);
+  });
+  return att;
+}
+
+/* ONBOARDING */
+const fName = document.getElementById('fName');
+const fMajor = document.getElementById('fMajor');
+const fId = document.getElementById('fId');
+const toStep2Btn = document.getElementById('toStep2Btn');
+
+function checkProfileValid(){
+  toStep2Btn.disabled = !(fName.value.trim().length>1 && fMajor.value && fId.value.trim().length>2);
+}
+[fName,fMajor,fId].forEach(el=>el.addEventListener('input',checkProfileValid));
+fMajor.addEventListener('change',checkProfileValid);
+
+toStep2Btn.addEventListener('click', ()=>{
+  state.student.name = fName.value.trim();
+  state.student.major = fMajor.value;
+  state.student.id = fId.value.trim();
+  document.getElementById('stepProfile').style.display='none';
+  document.getElementById('stepUpload').style.display='block';
+});
+document.getElementById('backToProfile').addEventListener('click', ()=>{
+  document.getElementById('stepUpload').style.display='none';
+  document.getElementById('stepProfile').style.display='block';
+});
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const fileChipArea = document.getElementById('fileChipArea');
+const validationArea = document.getElementById('validationArea');
+const validateBtn = document.getElementById('validateBtn');
+let selectedFile = null;
+let extractedRows = [];
+
+dropzone.addEventListener('click', ()=>fileInput.click());
+dropzone.addEventListener('dragover', e=>{e.preventDefault(); dropzone.classList.add('drag');});
+dropzone.addEventListener('dragleave', ()=>dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e=>{
+  e.preventDefault(); dropzone.classList.remove('drag');
+  if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e=>{
+  if(e.target.files.length) handleFile(e.target.files[0]);
+});
+
+function handleFile(file){
+  selectedFile = file;
+  validationArea.innerHTML = "";
+  const kb = (file.size/1024).toFixed(1);
+  fileChipArea.innerHTML = `
+    <div class="file-chip">
+      <span style="font-size:18px;">🗂️</span>
+      <div style="flex:1;">
+        <div class="fname">${escapeHtml(file.name)}</div>
+        <div class="fsize">${kb} KB</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="clearFile">Remove</button>
+    </div>`;
+  validateBtn.style.display = 'inline-flex';
+  document.getElementById('clearFile').addEventListener('click', ()=>{
+    selectedFile=null; fileChipArea.innerHTML=''; validationArea.innerHTML=''; validateBtn.style.display='none'; fileInput.value='';
+  });
+}
+
+document.getElementById('forceValid').addEventListener('click', ()=>{
+  extractedRows = generateMockTimetable(state.student.major || 'Software Engineering');
+  openReview();
+});
+document.getElementById('forceInvalid').addEventListener('click', ()=>showErrorState());
+validateBtn.addEventListener('click', runValidation);
+
+/* GRID-AWARE OCR */
+async function extractPdfText(file){
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+  let allItems = [];
+  for(let p=1; p<=pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    const items = content.items.map(it => ({str: it.str.trim(), x: it.transform[4], y: Math.round(it.transform[5])})).filter(it => it.str.length > 1);
+    allItems = allItems.concat(items);
+  }
+  return { items: allItems, rawText: allItems.map(i => i.str).join('\n') };
+}
+
+async function extractImageText(file){
+  const { data } = await Tesseract.recognize(file, 'eng', {tessedit_pageseg_mode: '6'});
+  return {
+    items: data.words.map(w => ({str: w.text.trim(), x: w.bbox.x0, y: Math.round((w.bbox.y0 + w.bbox.y1)/2)})).filter(w => w.str.length > 1),
+    rawText: data.text
+  };
+}
+
+function parseTimetableGrid(extraction){
+  const { items } = extraction;
+  if(items.length < 15) return parseTimetableText(extraction.rawText);
+
+  items.sort((a,b) => b.y - a.y || a.x - b.x);
+
+  const rows = [];
+  items.forEach(item => {
+    const text = item.str;
+    const codeMatch = text.match(/\b[A-Z]{2,4}\d{4,5}\b/);
+    if(codeMatch){
+      let day = "Mon";
+      if(item.x > 650) day = "Fri";
+      else if(item.x > 500) day = "Thu";
+      else if(item.x > 350) day = "Wed";
+      else if(item.x > 200) day = "Tue";
+
+      let name = text.replace(codeMatch[0], '').trim().replace(/Room:.*/i, '');
+
+      const timeMatch = text.match(/(\d{1,2}):\d{2}/);
+      const startTime = timeMatch ? parseInt(timeMatch[1]) : 9;
+      const endTime = startTime + 2;
+
+      rows.push({
+        id: uid(),
+        courseCode: codeMatch[0],
+        courseName: name || "Class",
+        type: /Tutorial/i.test(text) ? "Tutorial" : /Lab/i.test(text) ? "Lab" : "Lecture",
+        dayOfWeek: day,
+        startTime: startTime,
+        endTime: endTime,
+        location: "TBA",
+        instructor: "TBA"
+      });
+    }
+  });
+
+  return rows.length >= 2 ? rows : parseTimetableText(extraction.rawText);
+}
+
+function runValidation(){
+  validationArea.innerHTML = `<div style="display:flex; align-items:center; gap:9px; margin-top:14px; font-size:13px; color:var(--muted);"><span class="spinner"></span> Analyzing grid timetable...</div>`;
+  validateBtn.disabled = true;
+
+  (async ()=>{
+    try{
+      const ext = selectedFile.name.split('.').pop().toLowerCase();
+      let extraction = ext === 'pdf' ? await extractPdfText(selectedFile) : await extractImageText(selectedFile);
+      let rows = parseTimetableGrid(extraction);
+      if(rows.length < 3) rows = parseTimetableText(extraction.rawText);
+
+      if(rows.length >= 2){
+        extractedRows = rows;
+        validationArea.innerHTML = `<div class="success-box">✓ Found ${rows.length} class slots</div>`;
+        setTimeout(openReview, 600);
+      } else {
+        showErrorState();
+      }
+    } catch(err){
+      console.error(err);
+      showErrorState();
+    } finally {
+      validateBtn.disabled = false;
+    }
+  })();
+}
+
+function showErrorState(){
+  document.getElementById('stepUpload').style.display='none';
+  document.getElementById('stepError').style.display='block';
+}
+document.getElementById('reuploadBtn').addEventListener('click', ()=>{
+  document.getElementById('stepError').style.display='none';
+  document.getElementById('stepUpload').style.display='block';
+  selectedFile=null; fileInput.value='';
+  fileChipArea.innerHTML=''; validationArea.innerHTML=''; validateBtn.style.display='none';
+});
+
+function openReview(){
+  document.getElementById('stepUpload').style.display='none';
+  document.getElementById('stepReview').style.display='block';
+  document.getElementById('onboardCard').classList.add('wide');
+  renderReviewTable();
+}
+function renderReviewTable(){
+  const area = document.getElementById('reviewTableArea');
+  const dayOpts = DAYS.map(d=>`<option value="${d}">${d}</option>`).join('');
+  const typeOpts = ['Lecture','Tutorial','Lab'].map(t=>`<option>${t}</option>`).join('');
+  area.innerHTML = `
+    <div class="review-head-row"><span>Code</span><span>Name</span><span>Type</span><span>Day</span><span>Start</span><span>End</span><span></span></div>
+    ${extractedRows.map((r,i)=>`
+      <div class="review-row" data-i="${i}">
+        <input value="${escapeHtml(r.courseCode)}" oninput="updateReviewField(${i},'courseCode',this.value)" />
+        <input value="${escapeHtml(r.courseName)}" oninput="updateReviewField(${i},'courseName',this.value)" />
+        <select onchange="updateReviewField(${i},'type',this.value)">${typeOpts.replace(`>${r.type}<`,` selected>${r.type}<`)}</select>
+        <select onchange="updateReviewField(${i},'dayOfWeek',this.value)">${dayOpts.replace(`"${r.dayOfWeek}"`,`"${r.dayOfWeek}" selected`)}</select>
+        <input type="number" step="0.5" min="0" max="23" value="${r.startTime}" oninput="updateReviewField(${i},'startTime',parseFloat(this.value))" />
+        <input type="number" step="0.5" min="0" max="23" value="${r.endTime}" oninput="updateReviewField(${i},'endTime',parseFloat(this.value))" />
+        <button class="rm-row" onclick="removeReviewRow(${i})" title="Remove row">✕</button>
+      </div>
+    `).join('')}
+  `;
+}
+function updateReviewField(i, field, val){ if(extractedRows[i]) extractedRows[i][field] = val; }
+function removeReviewRow(i){ extractedRows.splice(i,1); renderReviewTable(); }
+document.getElementById('addReviewRow').addEventListener('click', ()=>{
+  extractedRows.push({id:uid(), courseCode:'NEW101', courseName:'New Class', type:'Lecture', dayOfWeek:'Mon', startTime:9, endTime:10, location:'TBA', instructor:'TBA'});
+  renderReviewTable();
+});
+document.getElementById('backToUploadFromReview').addEventListener('click', ()=>{
+  document.getElementById('stepReview').style.display='none';
+  document.getElementById('onboardCard').classList.remove('wide');
+  document.getElementById('stepUpload').style.display='block';
+});
+document.getElementById('confirmReviewBtn').addEventListener('click', ()=>{
+  extractedRows.forEach(r=>{ if(!r.id) r.id = uid(); });
+  completeOnboarding();
+});
+
+function completeOnboarding(){
+  state.timetable = extractedRows.length ? extractedRows : generateMockTimetable(state.student.major);
+  state.tasks = generateMockTasks(state.timetable);
+  state.announcements = generateAnnouncements();
+  state.attendance = generateAttendance(state.timetable);
+  state.onboarded = true;
+
+  document.getElementById('onboardWrap').style.display='none';
+  document.getElementById('app').classList.add('active');
+
+  const initials = state.student.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('avatarInit').textContent = initials || '?';
+  document.getElementById('footName').textContent = state.student.name;
+  document.getElementById('footMajor').textContent = state.student.major;
+
+  renderView('dashboard');
+  updateBadges();
+  startClock();
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* NAVIGATION */
+document.querySelectorAll('.nav-item[data-view]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderView(btn.dataset.view);
+    document.getElementById('sidebar').classList.remove('open');
+  });
+});
+document.getElementById('hamburger').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+function renderView(view){
+  state.currentView = view;
+  const root = document.getElementById('viewRoot');
+  const renderers = {
+    dashboard: renderDashboard, calls: renderCalls, deadlines: renderDeadlines,
+    timetable: renderTimetable, absence: renderAbsence, mocktests: renderMockTests, office: renderOffice
+  };
+  root.innerHTML = (renderers[view] || renderDashboard)();
+  attachViewHandlers(view);
+}
+
+function updateBadges(){
+  const dueSoon = state.tasks.filter(t=>!t.done && daysUntil(t.due)<=14).length;
+  document.getElementById('deadlineBadge').textContent = dueSoon;
+}
+
+function daysUntil(date){
+  const now = new Date(); now.setHours(0,0,0,0);
+  const d = new Date(date); d.setHours(0,0,0,0);
+  return Math.round((d-now)/86400000);
+}
+function fmtDate(d){
+  return d.toLocaleDateString('en-US',{month:'short', day:'numeric'});
+}
+function fmtTime(h){
+  const period = h>=12?'PM':'AM'; const hr = h>12? h-12 : (h===0?12:h);
+  return `${hr}:00 ${period}`;
+}
+
+/* DASHBOARD */
+function getNextClass(){
+  const now = new Date();
+  const dayIdx = now.getDay();
+  const dayMap = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const hourNow = now.getHours() + now.getMinutes()/60;
+  let candidates = [];
+  for(let offset=0; offset<7; offset++){
+    const idx = (dayIdx+offset)%7;
+    const dayCode = dayMap[idx];
+    if(!DAYS.includes(dayCode)) continue;
+    state.timetable.filter(t=>t.dayOfWeek===dayCode).forEach(t=>{
+      let diffDays = offset;
+      let startsAt = t.startTime;
+      if(offset===0 && startsAt <= hourNow) return;
+      candidates.push({...t, diffDays, startsAt});
+    });
+  }
+  candidates.sort((a,b)=> a.diffDays-b.diffDays || a.startsAt-b.startsAt);
+  return candidates[0] || null;
+}
+
+function renderDashboard(){
+  const next = getNextClass();
+  let hudHtml;
+  if(next){
+    const now = new Date();
+    const target = new Date(now);
+    target.setDate(target.getDate()+next.diffDays);
+    target.setHours(Math.floor(next.startsAt), (next.startsAt%1)*60, 0,0);
+    const msLeft = target-now;
+    const hrs = Math.max(0,Math.floor(msLeft/3600000));
+    const mins = Math.max(0,Math.floor((msLeft%3600000)/60000));
+    hudHtml = `
+      <div class="hud-row">
+        <div>
+          <div class="hud-label">Up Next · ${next.diffDays===0?'Today':(next.diffDays===1?'Tomorrow':DAY_FULL[next.dayOfWeek])}</div>
+          <div class="hud-title">${next.courseCode} — ${next.courseName}</div>
+          <div class="hud-meta">
+            <span>◷ ${fmtTime(next.startsAt)}–${fmtTime(next.endTime)}</span>
+            <span>◈ ${next.location}</span>
+            <span>${next.type}</span>
+          </div>
+        </div>
+        <div class="hud-timer">
+          <div class="num" id="hudCountdown">${hrs}h ${mins}m</div>
+          <div class="lbl">until class</div>
+        </div>
+      </div>`;
+  } else {
+    hudHtml = `<div class="hud-empty">No upcoming classes scheduled this week. Enjoy the break! 🎓</div>`;
+  }
+
+  const soonTasks = state.tasks.filter(t=>!t.done).sort((a,b)=>a.due-b.due).slice(0,4);
+  const avgAttendance = Math.round(Object.values(state.attendance).reduce((a,b)=>a+b,0)/Math.max(1,Object.values(state.attendance).length));
+
+  return `
+    <div class="view-head">
+      <div class="view-eyebrow">Dashboard</div>
+      <h1 class="view-title">Welcome back, ${state.student.name.split(' ')[0]}.</h1>
+      <p class="view-desc">${state.student.major} · Command center for your semester</p>
+    </div>
+
+    <div class="hud blueprint-grid" id="hudWidget">${hudHtml}</div>
+
+    <div class="grid grid-3" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="section-title">📌 Upcoming deadlines</div>
+        ${soonTasks.map(t=>`
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;">
+            <span>${escapeHtml(t.name)}</span>
+            <span class="mono-line" style="font-family:var(--font-mono); color:var(--muted); font-size:11.5px;">${fmtDate(t.due)}</span>
+          </div>`).join('') || '<p class="muted" style="font-size:13px;">All caught up.</p>'}
+      </div>
+      <div class="card">
+        <div class="section-title">✚ Attendance snapshot</div>
+        <div style="font-family:var(--font-mono); font-size:30px; font-weight:700; color:${avgAttendance<75?'var(--alert)':'var(--circuit)'};">${avgAttendance}%</div>
+        <p class="muted" style="font-size:12.5px;">Average across ${Object.keys(state.attendance).length} courses</p>
+      </div>
+      <div class="card">
+        <div class="section-title">📣 Latest announcement</div>
+        ${state.announcements.filter(a=>a.visible)[0] ? `
+          <p style="font-size:13.5px; font-weight:600;">${escapeHtml(state.announcements.filter(a=>a.visible)[0].title)}</p>
+          <p class="muted" style="font-size:12px; margin-top:4px;">Posted 14-day advance notice · ${fmtDate(state.announcements.filter(a=>a.visible)[0].date)}</p>
+        ` : '<p class="muted" style="font-size:13px;">Nothing new right now.</p>'}
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="section-title">◉ Join a class call</div>
+        <p class="muted" style="font-size:13px; margin-bottom:12px;">Jump into your next scheduled session or an open study room.</p>
+        <button class="btn btn-primary" onclick="navTo('calls')">Go to Class Calls →</button>
+      </div>
+      <div class="card">
+        <div class="section-title">▤ Office Suite</div>
+        <p class="muted" style="font-size:13px; margin-bottom:12px;">Word, Excel, PowerPoint, Forms, Calendar, and Outlook — without leaving EngiSpace.</p>
+        <button class="btn btn-ghost" onclick="navTo('office')">Open Office Suite →</button>
+      </div>
+    </div>
+  `;
+}
+
+function navTo(view){
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===view);
+  });
+  renderView(view);
+}
+
+/* CLASS CALLS */
+function renderCalls(){
+  const upcoming = [...state.timetable].slice(0,8);
+  return `
+    <div class="view-head">
+      <div class="view-eyebrow">Class Calls</div>
+      <h1 class="view-title">Video Collaboration</h1>
+      <p class="view-desc">Join scheduled lectures or start an ad-hoc study session.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:20px; background:var(--ink); color:#fff; border:none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;">
+        <div>
+          <div class="section-title" style="color:#fff;">🟢 Active Call · Study Room</div>
+          <p style="color:#AEB9D4; font-size:13px;">Open group session — anyone from your major can drop in.</p>
+        </div>
+        <button class="btn btn-primary" onclick="simulateJoin('Study Room')">Join Now</button>
+      </div>
+    </div>
+
+    <div class="section-title">Scheduled from your timetable</div>
+    ${upcoming.map(t=>`
+      <div class="call-row">
+        <div class="call-dot"></div>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:13.5px;">${t.courseCode} — ${escapeHtml(t.courseName)}</div>
+          <div class="muted" style="font-size:11.5px; font-family:var(--font-mono);">${t.dayOfWeek} · ${fmtTime(t.startTime)}–${fmtTime(t.endTime)} · ${t.type}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="simulateJoin('${t.courseCode}')">Join Call</button>
+      </div>
+    `).join('')}
+  `;
+}
+function simulateJoin(name){
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Connecting…</h3>
+    <p class="mono-line">${escapeHtml(name)}</p>
+    <div class="modal-divider"></div>
+    <div style="display:flex; align-items:center; gap:10px;"><span class="spinner"></span> Setting up your camera and mic (simulated)</div>
+  `);
+  setTimeout(()=>{
+    document.getElementById('modalBody').innerHTML = `
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3>You're in 🎥</h3>
+      <p class="mono-line">${escapeHtml(name)} · 4 participants</p>
+      <div class="modal-divider"></div>
+      <button class="btn btn-danger-ghost btn-block" onclick="closeModal()">Leave call</button>
+    `;
+  },1200);
+}
+
+/* DEADLINES */
+function renderDeadlines(){
+  const sorted = [...state.tasks].sort((a,b)=>a.due-b.due);
+  const visibleAnns = state.announcements.filter(a=>a.visible);
+  return `
+    <div class="view-head">
+      <div class="view-eyebrow">Deadlines & Tasks</div>
+      <h1 class="view-title">Smart Engineering Tracker</h1>
+      <p class="view-desc">Sorted by closest due date.</p>
+    </div>
+    <div class="grid" style="margin-bottom:22px;">
+      ${sorted.map(t=>{
+        const dLeft = daysUntil(t.due);
+        const flagged = dLeft<=14 && dLeft>=0 && !t.done;
+        return `
+        <div class="task-row" style="${t.done?'opacity:.5;':''}">
+          <div class="check-circle ${t.done?'done':''}" onclick="toggleTask('${t.id}')">${t.done?'✓':''}</div>
+          <span class="task-type-tag ${t.tag}">${t.kind}</span>
+          <div class="task-info">
+            <div class="task-course">${t.courseCode}</div>
+            <div class="task-name">${escapeHtml(t.name)}</div>
+          </div>
+          ${flagged?'<span class="alert-flag">⏰ 2-Week Deadline Alert</span>':''}
+          <div class="task-due">
+            <div class="d">${fmtDate(t.due)}</div>
+            <div class="rel">${dLeft<0?'overdue':dLeft+' days left'}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="section-title">📣 Smart Announcements</div>
+    <div class="card">
+      ${visibleAnns.length? visibleAnns.map(a=>`
+        <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line);">
+          <div>
+            <div style="font-weight:600; font-size:13.5px;">${escapeHtml(a.title)}</div>
+            <div class="muted" style="font-size:11.5px;">Visible now — within the 14-day advance window</div>
+          </div>
+          <div class="mono-line" style="font-family:var(--font-mono); font-size:12px; color:var(--muted);">${fmtDate(a.date)}</div>
+        </div>
+      `).join('') : '<p class="muted" style="font-size:13px;">No announcements within the 14-day window yet.</p>'}
+    </div>
+  `;
+}
+function toggleTask(id){
+  const t = state.tasks.find(x=>x.id===id);
+  if(t){ t.done = !t.done; renderView('deadlines'); updateBadges(); }
+}
+
+/* TIMETABLE */
+function renderTimetable(){
+  const grid = {};
+  DAYS.forEach(d=>grid[d]=[]);
+  state.timetable.forEach(t=>{ if(grid[t.dayOfWeek]) grid[t.dayOfWeek].push(t); });
+
+  let headCells = `<div class="tt-head" style="border-left:none;">TIME</div>` + DAYS.map(d=>`<div class="tt-head">${DAY_FULL[d].toUpperCase()}</div>`).join('');
+  let bodyRows = '';
+  HOURS.forEach(h=>{
+    bodyRows += `<div class="tt-time">${fmtTime(h)}</div>`;
+    DAYS.forEach(d=>{
+      const block = grid[d].find(t=> Math.floor(t.startTime)===h);
+      if(block){
+        const span = Math.max(1, Math.round(block.endTime-block.startTime));
+        bodyRows += `<div class="tt-cell" style="grid-row: span ${span};">
+          <div class="tt-block ${block.type.toLowerCase()}" onclick="openClassModal('${block.id}')">
+            <div class="code">${block.courseCode}</div>
+            <div class="loc">${block.location}</div>
+          </div>
+        </div>`;
+      } else {
+        const covered = grid[d].some(t=> t.startTime < h && t.endTime > h);
+        if(!covered) bodyRows += `<div class="tt-cell"></div>`;
+      }
+    });
+  });
+
+  return `
+    <div class="view-head">
+      <div class="view-eyebrow">Timetable</div>
+      <h1 class="view-title">Interactive Calendar Grid</h1>
+      <p class="view-desc">Click any block for professor, room, and pre-reading files.</p>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:14px;">
+      <span class="chip"><span style="width:9px;height:9px;border-radius:3px;background:var(--blueprint);display:inline-block;"></span> Lecture</span>
+      <span class="chip"><span style="width:9px;height:9px;border-radius:3px;background:var(--circuit);display:inline-block;"></span> Lab</span>
+      <span class="chip"><span style="width:9px;height:9px;border-radius:3px;background:var(--amber);display:inline-block;"></span> Tutorial</span>
+    </div>
+    <div class="tt-wrap">
+      <div class="tt-grid" style="grid-auto-rows:52px;">
+        ${headCells}
+        ${bodyRows}
+      </div>
+    </div>
+  `;
+}
+function openClassModal(id){
+  const t = state.timetable.find(x=>x.id===id);
+  if(!t) return;
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <span class="task-type-tag ${t.type==='Lab'?'tag-lab':(t.type==='Tutorial'?'tag-midterm':'tag-assignment')}">${t.type}</span>
+    <h3 style="margin-top:8px;">${t.courseCode} — ${escapeHtml(t.courseName)}</h3>
+    <p class="mono-line">${DAY_FULL[t.dayOfWeek]} · ${fmtTime(t.startTime)}–${fmtTime(t.endTime)}</p>
+    <div class="modal-divider"></div>
+    <p class="mono-line">👤 ${t.instructor}</p>
+    <p class="mono-line">📍 ${t.location}</p>
+    <div class="modal-divider"></div>
+    <div class="section-title" style="font-size:13px;">📎 Pre-reading files</div>
+    <div class="file-chip"><span>📘</span><div class="fname">${t.courseCode}_Lecture_Notes.pdf</div></div>
+    <div class="file-chip"><span>📗</span><div class="fname">${t.courseCode}_Prereading_Ch${(t.id.charCodeAt(0)%9)+1}.pdf</div></div>
+  `);
+}
+
+/* ABSENCE */
+function renderAbsence(){
+  const courses = Object.keys(state.attendance);
+  return `
+    <div class="view-head">
+      <div class="view-eyebrow">Absence & Medical</div>
+      <h1 class="view-title">Automated Attendance Safeguard</h1>
+      <p class="view-desc">Track attendance ratios and submit medical certificates for automatic notification.</p>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="section-title">Attendance by course</div>
+        ${courses.map(c=>{
+          const pct = state.attendance[c];
+          const color = pct<75?'var(--alert)':(pct<85?'var(--amber)':'var(--circuit)');
+          return `
+          <div class="attend-row">
+            <div class="attend-code">${c}</div>
+            <div class="attend-bar-track"><div class="attend-bar-fill" style="width:${pct}%; background:${color};"></div></div>
+            <div class="attend-pct" style="color:${color};">${pct}%</div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div class="card">
+        <div class="section-title">📤 MC Upload Portal</div>
+        <p class="muted" style="font-size:12.5px; margin-bottom:12px;">Upload a medical certificate to automatically notify your lecturer and faculty.</p>
+        <div class="field">
+          <label>Affected class</label>
+          <select id="mcClass">
+            ${state.timetable.map(t=>`<option value="${t.id}">${t.courseCode} — ${DAY_FULL[t.dayOfWeek]} ${fmtTime(t.startTime)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="dropzone" id="mcDropzone" style="padding:20px;">
+          <div class="dz-icon" style="font-size:22px;">🏥</div>
+          <div class="dz-title" style="font-size:13px;">Click to attach Medical Certificate</div>
+          <div class="dz-sub">PDF or image</div>
+        </div>
+        <input type="file" id="mcFileInput" style="display:none;" accept=".pdf,.png,.jpg,.jpeg" />
+        <div id="mcResult"></div>
+      </div>
+    </div>
+  `;
+}
+function attachAbsenceHandlers(){
+  const mcDz = document.getElementById('mcDropzone');
+  const mcInput = document.getElementById('mcFileInput');
+  if(!mcDz) return;
+  mcDz.addEventListener('click', ()=>mcInput.click());
+  mcInput.addEventListener('change', e=>{
+    if(!e.target.files.length) return;
+    const file = e.target.files[0];
+    const classId = document.getElementById('mcClass').value;
+    const cls = state.timetable.find(t=>t.id===classId);
+    const resultEl = document.getElementById('mcResult');
+    resultEl.innerHTML = `<div style="display:flex; align-items:center; gap:9px; margin-top:12px; font-size:13px; color:var(--muted);"><span class="spinner"></span> Uploading and dispatching notification…</div>`;
+    setTimeout(()=>{
+      resultEl.innerHTML = `
+        <div class="success-box" style="align-items:flex-start; flex-direction:column;">
+          <div>✓ MC uploaded — email dispatched automatically</div>
+          <div class="mono-line" style="font-family:var(--font-mono); font-size:11px; margin-top:8px; color:#116441;">
+            TO: The Faculty Lecturer (${cls.instructor})<br/>
+            TO: Management Academic Unit<br/>
+            SUBJECT: MC Notice — ${state.student.name} — ${cls.courseCode}<br/>
+            SLOT: ${DAY_FULL[cls.dayOfWeek]} ${fmtTime(cls.startTime)}–${fmtTime(cls.endTime)}<br/>
+            ATTACHMENT: ${escapeHtml(file.name)}
+          </div>
+        </div>`;
+    },1300);
+  });
+}
+
+/* MOCK TESTS */
+const QUIZ_BANK = {
+  Mechanical: [
+    {q:"Which law states that entropy of an isolated system never decreases?", opts:["1st Law of Thermodynamics","2nd Law of Thermodynamics","Boyle's Law","Newton's 3rd Law"], a:1},
+    {q:"A beam under pure bending experiences maximum stress at the:", opts:["Neutral axis","Extreme fibers","Centroid","Support only"], a:1},
+  ],
+  Electrical: [
+    {q:"Ohm's Law is expressed as:", opts:["P = VI","V = IR","I = V + R","R = V/I²"], a:1},
+    {q:"In a purely capacitive AC circuit, current:", opts:["Lags voltage by 90°","Leads voltage by 90°","Is in phase with voltage","Is zero"], a:1},
+  ],
+  Electronics: [
+    {q:"A BJT operating in the active region is mainly used as a:", opts:["Switch only","Amplifier","Rectifier","Voltage regulator only"], a:1},
+    {q:"Which logic gate outputs HIGH only when all inputs are HIGH?", opts:["OR","NAND","AND","XOR"], a:2},
+  ],
+  Civil: [
+    {q:"The unit of bending moment is:", opts:["N/mm²","N·m","N/m³","Pa·s"], a:1},
+    {q:"Which soil test determines bearing capacity?", opts:["Plate load test","Litmus test","Slump test","Sieve test only"], a:0},
+  ],
+  Software: [
+    {q:"Which sorting algorithm has average-case O(n log n)?", opts:["Bubble sort","Merge sort","Insertion sort","Selection sort"], a:1},
+    {q:"Which normal form removes transitive dependency?", opts:["1NF","2NF","3NF","0NF"], a:2},
+  ]
+};
+function renderMockTests(){
+  const streams = Object.keys(QUIZ_BANK);
+  return `
+    <div class="view-head">
+      <div class="view-eyebrow">Mock Tests</div>
+      <h1 class="view-title">Exam Prep Simulator</h1>
+      <p class="view-desc">Practice past-year style questions, grouped by engineering stream, with instant grading.</p>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;">
+      ${streams.map((s,i)=>`<button class="chip ${i===0?'active':''}" onclick="selectStream('${s}', this)">${s}</button>`).join('')}
+    </div>
+    <div id="quizArea">${renderQuizStream(streams[0])}</div>
+  `;
+}
+function selectStream(stream, el){
+  document.querySelectorAll('#viewRoot .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('quizArea').innerHTML = renderQuizStream(stream);
+}
+function renderQuizStream(stream){
+  const qs = QUIZ_BANK[stream];
+  return `
+    <div class="grid grid-2">
+      ${qs.map((item,i)=>`
+        <div class="quiz-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span class="task-type-tag tag-assignment">Q${i+1}</span>
+            <span class="quiz-timer" id="timer-${stream}-${i}">02:00</span>
+          </div>
+          <p style="font-size:13.5px; font-weight:600; margin-bottom:12px;">${item.q}</p>
+          ${item.opts.map((o,oi)=>`<button class="qopt" onclick="answerQuiz(this,${oi},${item.a})">${o}</button>`).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+function answerQuiz(btn, chosen, correct){
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.qopt').forEach((b,i)=>{
+    b.style.pointerEvents='none';
+    if(i===correct) b.classList.add('correct');
+  });
+  if(chosen!==correct) btn.classList.add('wrong');
+}
+
+/* OFFICE SUITE */
+const OFFICE_APPS = [
+  {id:'word', label:'Word', icon:'📝'},
+  {id:'excel', label:'Excel', icon:'📊'},
+  {id:'ppt', label:'PowerPoint', icon:'📽️'},
+  {id:'forms', label:'Forms', icon:'🧾'},
+  {id:'calendar', label:'Calendar', icon:'📅'},
+  {id:'outlook', label:'Outlook', icon:'✉️'}
+];
+function renderOffice(){
+  return `
+    <div class="view-head">
+      <div class="view-eyebrow">Office Suite</div>
+      <h1 class="view-title">Your one-stop ecosystem</h1>
+      <p class="view-desc">Word, Excel, PowerPoint, Forms, Calendar and Outlook — embedded, no context switching.</p>
+    </div>
+    <div class="office-tabs">
+      ${OFFICE_APPS.map(a=>`<button class="chip ${a.id===state.officeTab?'active':''}" onclick="selectOffice('${a.id}',this)">${a.icon} ${a.label}</button>`).join('')}
+    </div>
+    <div id="officeFrame">${renderOfficeFrame(state.officeTab)}</div>
+  `;
+}
+function selectOffice(id, el){
+  state.officeTab = id;
+  document.querySelectorAll('#viewRoot .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('officeFrame').innerHTML = renderOfficeFrame(id);
+}
+function renderOfficeFrame(id){
+  const titleMap = {word:'Untitled Document.docx', excel:'Engineering_Calcs.xlsx', ppt:'Project_Deck.pptx', forms:'New Form', calendar:'Master Calendar', outlook:'Inbox'};
+  let body = '';
+  if(id==='word'){
+    body = `<div contenteditable="true" style="min-height:280px; font-family:'Inter'; font-size:14px; line-height:1.7; outline:none; border:1px dashed var(--line); padding:20px; border-radius:8px;">
+      <strong>Lab Report — ${escapeHtml(state.timetable[0]?.courseCode||'')}</strong><br/><br/>
+      Start typing here. This canvas simulates a lightweight Word-style editor embedded directly inside EngiSpace.
+    </div>`;
+  } else if(id==='excel'){
+    const rows = 6, cols = 5;
+    body = `<table style="width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:12px;">
+      <tr>${Array.from({length:cols}).map((_,c)=>`<th style="border:1px solid var(--line); background:var(--paper); padding:6px;">${String.fromCharCode(65+c)}</th>`).join('')}</tr>
+      ${Array.from({length:rows}).map(()=>`<tr>${Array.from({length:cols}).map(()=>`<td contenteditable="true" style="border:1px solid var(--line); padding:6px; min-width:80px;"></td>`).join('')}</tr>`).join('')}
+    </table>
+    <p class="muted" style="font-size:12px; margin-top:10px;">Click any cell to enter engineering calculation values.</p>`;
+  } else if(id==='ppt'){
+    body = `<div style="aspect-ratio:16/9; max-width:520px; margin:0 auto; background:linear-gradient(135deg,var(--ink),#1B2C4E); border-radius:10px; color:#fff; display:flex; flex-direction:column; justify-content:center; padding:28px;">
+      <div style="font-family:var(--font-mono); font-size:11px; color:var(--amber); letter-spacing:.1em;">SLIDE 1</div>
+      <div style="font-family:var(--font-display); font-size:22px; font-weight:700; margin-top:6px;">Your Presentation Title</div>
+      <div style="font-size:12.5px; color:#AEB9D4; margin-top:6px;">Click to edit subtitle</div>
+    </div>`;
+  } else if(id==='forms'){
+    body = `<div class="field"><label>Form title</label><input type="text" placeholder="Lab Feedback Survey"/></div>
+    <div class="field"><label>Question 1</label><input type="text" placeholder="How clear were the lab instructions?"/></div>
+    <button class="btn btn-ghost btn-sm">+ Add question</button>`;
+  } else if(id==='calendar'){
+    body = `<div class="grid grid-3" style="gap:10px;">
+      ${state.tasks.slice(0,3).map(t=>`<div class="card card-tight"><div class="mono-line" style="font-family:var(--font-mono); font-size:11px;">${fmtDate(t.due)}</div><div style="font-size:12.5px; font-weight:600;">${escapeHtml(t.name)}</div></div>`).join('')}
+      ${state.timetable.slice(0,3).map(t=>`<div class="card card-tight"><div class="mono-line" style="font-family:var(--font-mono); font-size:11px;">${t.dayOfWeek} ${fmtTime(t.startTime)}</div><div style="font-size:12.5px; font-weight:600;">${t.courseCode}</div></div>`).join('')}
+    </div>`;
+  } else if(id==='outlook'){
+    body = `
+      <div style="border-bottom:1px solid var(--line); padding:12px 0;">
+        <strong style="font-size:13px;">MC Notice — ${state.student.name}</strong>
+        <p class="muted" style="font-size:12px;">To: Faculty Lecturer, Management Academic Unit</p>
+      </div>
+      <div style="border-bottom:1px solid var(--line); padding:12px 0;">
+        <strong style="font-size:13px;">Reminder: ${state.tasks[0]?.name||'Upcoming task'}</strong>
+        <p class="muted" style="font-size:12px;">From: EngiSpace Notifications</p>
+      </div>
+      <div style="padding:12px 0;">
+        <strong style="font-size:13px;">Class location update — ${state.timetable[0]?.courseCode||''}</strong>
+        <p class="muted" style="font-size:12px;">From: ${state.timetable[0]?.instructor||''}</p>
+      </div>`;
+  }
+  return `
+    <div class="office-frame">
+      <div class="office-frame-head">
+        <div class="dot3"><span></span><span></span><span></span></div>
+        <span>${titleMap[id]}</span>
+      </div>
+      <div class="office-frame-body">${body}</div>
+    </div>`;
+}
+
+/* MODAL */
+function openModal(html){
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  if(e.target.id==='modalOverlay') closeModal();
+});
+
+/* CLOCK */
+function startClock(){
+  function tick(){
+    const now = new Date();
+    document.getElementById('clockPill').textContent = now.toLocaleString('en-US',{weekday:'short', hour:'2-digit', minute:'2-digit'});
+  }
+  tick();
+  setInterval(tick, 30000);
+}
+
+function attachViewHandlers(view){
+  if(view==='absence') attachAbsenceHandlers();
+}
+</script>
 </body>
 </html>
