@@ -1259,6 +1259,75 @@ function renderView(view) {
   if (view === "tasks") renderTasks();
   if (view === "absence") renderAbsence();
 }
+/* DASHBOARD */
+
+function getNextClass() {
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const today = days[new Date().getDay()];
+  const nowTime = new Date().toTimeString().slice(0, 5);
+
+  const todayClasses = state.timetable
+    .filter(item => item.day === today && item.start > nowTime)
+    .sort((a, b) => a.start.localeCompare(b.start));
+
+  return todayClasses[0] || state.timetable[0] || null;
+}
+
+function renderDashboard() {
+  const root = document.getElementById("viewRoot");
+  const nextClass = getNextClass();
+  const pendingTasks = state.tasks.filter(task => !task.done);
+
+  const attendanceValues = Object.values(state.attendance);
+  const avgAttendance = attendanceValues.length
+    ? Math.round(attendanceValues.reduce((a, b) => a + Number(b), 0) / attendanceValues.length)
+    : 0;
+
+  root.innerHTML = `
+    <div class="view-head">
+      <div class="view-eyebrow">Dashboard</div>
+      <h1 class="view-title">Welcome, ${escapeHtml(state.student.name.split(" ")[0])}</h1>
+      <p class="muted">${escapeHtml(state.student.major)} · ${escapeHtml(state.student.id)}</p>
+    </div>
+
+    <div class="hero">
+      <h2>Next Class</h2>
+      ${
+        nextClass
+        ? `
+          <p style="margin-top:8px;">
+            <strong>${escapeHtml(nextClass.code)} — ${escapeHtml(nextClass.subject)}</strong>
+          </p>
+          <p class="muted">
+            ${nextClass.day}, ${nextClass.start} - ${nextClass.end} · ${escapeHtml(nextClass.location)}
+          </p>
+        `
+        : `<p class="muted">No class added yet.</p>`
+      }
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>Total Classes</h3>
+        <div class="stat-number">${state.timetable.length}</div>
+        <p class="muted">Classes in your timetable</p>
+      </div>
+
+      <div class="card">
+        <h3>Pending Tasks</h3>
+        <div class="stat-number">${pendingTasks.length}</div>
+        <p class="muted">Tasks not completed yet</p>
+      </div>
+
+      <div class="card">
+        <h3>Average Attendance</h3>
+        <div class="stat-number">${avgAttendance}%</div>
+        <p class="muted">Across all courses</p>
+      </div>
+    </div>
+  `;
+}
+
 </script>
 
     
