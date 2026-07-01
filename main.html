@@ -803,7 +803,18 @@ function normalizeDay(value) {
 function findDay(text) {
   const match = String(text || "").match(/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Tues|Wed|Thu|Thur|Fri|Sat|Sun)\b/i);
   return match ? normalizeDay(match[0]) : "";
-}  
+}
+function findType(text) {
+  const value = String(text || "");
+
+  if (/lab|practical/i.test(value)) return "Lab";
+  if (/tutorial|tutor/i.test(value)) return "Tutorial";
+  if (/seminar/i.test(value)) return "Seminar";
+  if (/lecture|lec/i.test(value)) return "Lecture";
+
+  return "Lecture";
+}
+
 
 </script>
 
