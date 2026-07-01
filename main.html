@@ -1189,6 +1189,36 @@ function updateDraft(index, field, value) {
     timetableDraft[index][field] = value;
   }
 }
+function removeDraftRow(index) {
+  timetableDraft.splice(index, 1);
+  renderReviewTable();
+}
+
+document.getElementById("addReviewRowBtn").addEventListener("click", () => {
+  timetableDraft.push(createBlankClass());
+  renderReviewTable();
+});
+
+document.getElementById("clearReviewBtn").addEventListener("click", () => {
+  timetableDraft = [];
+  renderReviewTable();
+  showStatus("Review table cleared.", "info");
+});
+
+document.getElementById("enterDashboardBtn").addEventListener("click", () => {
+  const cleaned = timetableDraft
+    .map(normalizeDraftRow)
+    .filter(row => row.code && row.subject && row.start && row.end);
+
+  if (cleaned.length === 0) {
+    showStatus("You need at least one complete timetable row before entering dashboard.", "error");
+    return;
+  }
+
+  state.timetable = cleaned;
+  rebuildAttendanceFromTimetable();
+  enterDashboard();
+});
 </script>
 
     
