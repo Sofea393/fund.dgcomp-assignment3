@@ -1038,6 +1038,15 @@ function csvObjectFromHeaders(headers, row) {
 
   return obj;
 }
+function normalizeImportedTime(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+
+  const match = text.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+  if (!match) return "";
+
+  return normalizeTime(match[1], match[2] || "00", match[3]);
+}
 
 </script>
 
