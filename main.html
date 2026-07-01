@@ -699,6 +699,42 @@ with lecture, tutorial, and lab slots.</div>
 </div>
 
 <script> 
+/* STATE */
+
+const state = {
+  student: {
+    name: "",
+    major: "",
+    id: ""
+  },
+  timetable: [],
+  tasks: [],
+  absences: [],
+  attendance: {},
+  currentView: "dashboard"
+};
+
+let timetableDraft = [];
+
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function escapeHtml(text) {
+  return String(text ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+}
+
+function showStatus(message, type = "info") {
+  const box = document.getElementById("importStatus");
+  box.className = `status show ${type}`;
+  box.textContent = message;
+}
   
 
 </script>
