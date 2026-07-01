@@ -684,6 +684,10 @@ with lecture, tutorial, and lab slots.</div>
       <strong id="sidebarName">Student</strong>
       <div id="sidebarMajor" class="brand-sub">Major</div>
       <div id="sidebarId" class="brand-sub">ID</div>
+    
+      <button class="btn btn-danger" style="margin-top:12px; width:100%;" onclick="clearSavedProgress()">
+        Reset Saved Data
+      </button>
     </div>
   </aside>
 
@@ -714,6 +718,77 @@ const state = {
 };
 
 let timetableDraft = [];
+
+const STORAGE_KEY = "campuslySavedProgressV1";
+
+function saveProgress() {
+  const data = {
+    student: state.student,
+    timetable: state.timetable,
+    tasks: state.tasks,
+    absences: state.absences,
+    attendance: state.attendance,
+    savedAt: new Date().toISOString()
+  };
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadProgress() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+
+  if (!raw) {
+    return false;
+  }
+
+  try {
+    const data = JSON.parse(raw);
+
+    state.student = data.student || state.student;
+    state.timetable = Array.isArray(data.timetable) ? data.timetable : [];
+    state.tasks = Array.isArray(data.tasks) ? data.tasks : [];
+    state.absences = Array.isArray(data.absences) ? data.absences : [];
+    state.attendance = data.attendance || {};
+
+    if (state.timetable.length > 0) {
+      rebuildAttendanceFromTimetable();
+    }
+
+    return true;
+  } catch (error) {
+    console.warn("Saved progress could not be loaded:", error);
+    return false;
+  }
+}
+
+function clearSavedProgress() {
+  const confirmClear = confirm("Clear all saved Campusly progress on this browser?");
+
+  if (!confirmClear) {
+    return;
+  }
+
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function restoreProgressIfAvailable() {
+  const restored = loadProgress();
+
+  if (!restored || !state.student.name) {
+    return;
+  }
+
+  document.getElementById("onboardWrap").style.display = "none";
+  document.getElementById("app").classList.add("active");
+
+  document.getElementById("sidebarName").textContent = state.student.name;
+  document.getElementById("sidebarMajor").textContent = state.student.major;
+  document.getElementById("sidebarId").textContent = state.student.id;
+
+  renderView("dashboard");
+  startClock();
+}
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
@@ -757,6 +832,8 @@ goTimetableBtn.addEventListener("click", () => {
   state.student.name = studentName.value.trim();
   state.student.major = studentMajor.value;
   state.student.id = studentId.value.trim();
+  
+  saveProgress();
 
   document.getElementById("profileStep").style.display = "none";
   document.getElementById("timetableStep").style.display = "block";
@@ -1232,6 +1309,7 @@ document.getElementById("enterDashboardBtn").addEventListener("click", () => {
 
   state.timetable = cleaned;
   rebuildAttendanceFromTimetable();
+  saveProgress();
   enterDashboard();
 });
 /* ENTER DASHBOARD */
@@ -1244,6 +1322,7 @@ function enterDashboard() {
   document.getElementById("sidebarMajor").textContent = state.student.major;
   document.getElementById("sidebarId").textContent = state.student.id;
 
+  saveProgress();
   renderView("dashboard");
   startClock();
 }
@@ -1416,17 +1495,21 @@ function renderDashboardTimetableRows() {
 function updateStateTimetable(index, field, value) {
   if (state.timetable[index]) {
     state.timetable[index][field] = value;
+    saveProgress();
+
   }
 }
 
 function addDashboardTimetableRow() {
   state.timetable.push(createBlankClass());
+  saveProgress();
   renderTimetable();
 }
 
 function deleteTimetableRow(index) {
   state.timetable.splice(index, 1);
   rebuildAttendanceFromTimetable();
+  saveProgress();
   renderTimetable();
 }
 
@@ -1436,6 +1519,7 @@ function saveDashboardTimetable() {
     .filter(row => row.code && row.subject && row.start && row.end);
 
   rebuildAttendanceFromTimetable();
+  saveProgress();
   alert("Timetable saved.");
   renderTimetable();
 }
@@ -1539,6 +1623,7 @@ function addTask() {
     done: false
   });
 
+  saveProgress();
   renderTasks();
 }
 
@@ -1590,6 +1675,8 @@ function toggleTask(id) {
 
   if (task) {
     task.done = !task.done;
+    saveProgress();
+
   }
 
   renderTasks();
@@ -1597,6 +1684,7 @@ function toggleTask(id) {
 
 function deleteTask(id) {
   state.tasks = state.tasks.filter(item => item.id !== id);
+  saveProgress();
   renderTasks();
 }
 
@@ -1695,6 +1783,7 @@ function renderAttendanceControls() {
 function updateAttendance(code, value) {
   const number = Math.max(0, Math.min(100, Number(value)));
   state.attendance[code] = number;
+  saveProgress();
   renderAbsence();
 }
 
@@ -1732,6 +1821,7 @@ function addAbsence() {
     fileName: fileInput.files.length ? fileInput.files[0].name : "No file attached"
   });
 
+  saveProgress();
   renderAbsence();
 }
 
@@ -1758,6 +1848,7 @@ function renderAbsenceList() {
 
 function deleteAbsence(id) {
   state.absences = state.absences.filter(item => item.id !== id);
+  saveProgress();
   renderAbsence();
 }
 
@@ -1777,6 +1868,8 @@ function startClock() {
   tick();
   setInterval(tick, 30000);
 }
+
+restoreProgressIfAvailable();
 
 </script>
 </body>
